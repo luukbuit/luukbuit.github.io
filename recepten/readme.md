@@ -1,7 +1,7 @@
 # Recepten
 
 [Dahl](#dahl)
-[Torellini met geroosterde groenten](#todo)
+[Torellini met geroosterde groenten](#torellini-met-geroosterde-groenten)
 
 ## Dahl
 
