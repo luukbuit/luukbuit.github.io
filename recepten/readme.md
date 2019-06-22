@@ -1,7 +1,7 @@
 # Recepten
 
-[Dahl](#dahl)
-[Torellini met geroosterde groenten](#torellini-met-geroosterde-groenten)
+- [Dahl](#dahl)
+- [Torellini met geroosterde groenten](#torellini-met-geroosterde-groenten)
 
 ## Dahl
 
@@ -48,7 +48,7 @@ serveer met brood
 - aubergine
 - paprika
 - 2 blikken tomatenblokjes (400 g), evt. de met-gesneden-paprika-variant
-- 500 g verse tortellini
+- 500 g verse tortellini (of gedroogd, kan ook)
 
 ### bereiding
 
@@ -57,5 +57,3 @@ serveer met brood
 - tortellini koken en samen met de geroosterde groenten aan tomatenblokjes toevoegen
 
 zet mooie olijkolie en een pepermolen op tafel
-
-vervang evt. de verse tortellini door gedroogde
