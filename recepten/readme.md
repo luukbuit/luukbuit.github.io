@@ -1,6 +1,6 @@
 # Recepten
 
-[Dahl](##Dahl)
+[Dahl](#dahl)
 
 ## Dahl
 
