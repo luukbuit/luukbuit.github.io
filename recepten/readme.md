@@ -53,7 +53,7 @@ serveer met brood
 
 ### bereiding
 
-- tomaten aan de tak met alle groenten grof gesneden roosteren in de oven, 30 min.
+- tomaten aan de tak met alle groenten grof gesneden roosteren in de oven, ruim met olie besprenkelen, halverwege omscheppen, 30 min.
 - tomatenblokjes verwarmen, zout toevoegen en tijdje laten pruttelen (max 30 min.)
 - tortellini koken en samen met de geroosterde groenten aan tomatenblokjes toevoegen
 
