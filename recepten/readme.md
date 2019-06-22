@@ -31,7 +31,7 @@ Indiase topper voor 4 personen, eenpansgerecht
 - knoflook en gember in piepkleine stukjes en even meebakken
 - kruiden toevoegen en even meebakken
 - kokosmelk en tomatenblokjes toevoegen, blokje groentebouillon verkruimelen, 20 min. laten sudderen
-- linzen laten uitlekken en samen met de spinaze en dopwerwten toevoegen
+- linzen laten uitlekken en samen met de spinaze en doperwten toevoegen
 - paar minuten laten sudderen zodat de doperwten warm zijn en de spinazie geslonken
 - zet de verse koriander in een mooi bakje op tafel
 
