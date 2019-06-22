@@ -1,8 +1,11 @@
 # Recepten
 
 [Dahl](#dahl)
+[Torellini met geroosterde groenten](#todo)
 
 ## Dahl
+
+Indiase topper voor 4 personen, eenpansgerecht
 
 ### ingredienten
 
@@ -33,3 +36,26 @@
 
 serveer met brood
 
+## Torellini met geroosterde groenten
+
+4 personen, oven, pan
+
+### ingredienten
+
+- 500 g zoete tomaten (hier niet op besparen)
+- ui
+- courgette
+- aubergine
+- paprika
+- 2 blikken tomatenblokjes (400 g), evt. de met-gesneden-paprika-variant
+- 500 g verse tortellini
+
+### bereiding
+
+- tomaten aan de tak met alle groenten grof gesneden roosteren in de oven, 30 min.
+- tomatenblokjes verwarmen, zout toevoegen en tijdje laten pruttelen (max 30 min.)
+- tortellini koken en samen met de geroosterde groenten aan tomatenblokjes toevoegen
+
+zet mooie olijkolie en een pepermolen op tafel
+
+vervang evt. de verse tortellini door gedroogde
