@@ -23,6 +23,7 @@ Indiase topper voor 4 personen, eenpansgerecht
 - 200 g verse spinazie
 - 200 g diepvries dopwerwtjes
 - verse koriander
+- brood voor erbij
 
 ### bereiding
 
