@@ -57,4 +57,4 @@ serveer met brood
 - tomatenblokjes verwarmen, zout toevoegen en tijdje laten pruttelen (max 30 min.)
 - tortellini koken en samen met de geroosterde groenten aan tomatenblokjes toevoegen
 
-zet mooie olijkolie en een pepermolen op tafel
+zet mooie olijfolie en een pepermolen op tafel
