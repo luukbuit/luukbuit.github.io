@@ -1,7 +1,7 @@
 # Test automation with Java
 
 - [Introduction](#introduction)
-- [Test Design](#test-design)
+- [Test design](#test-design)
 - [IDE](#ide)
 - [Maven](#maven)
 - [JUnit 5 and AssertJ](#junit-5-and-assertj)
@@ -38,7 +38,7 @@ If you have domain experts who want to write feature files in Gherkin syntax, th
 is definitely a good choice to invest in coding Cucumber step definitions. If you do not have such domain experts,
 adding Cucumber to your project is just overhead.
 
-## Test Design
+## Test design
 
 Easy to read and easy to maintain, that are the important characteristics of well-designed tests. These best practices
 helps you to achieve exactly that.
