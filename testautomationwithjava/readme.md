@@ -8,7 +8,7 @@
 - [Jdbi](#jdbi)
 - [REST Assured](#rest-assured)
 - [Selenide](#selenide)
-- [Allure Framework](#allure-framework)
+- [Allure reports](#allure-reports)
 
 ## Introduction
 
@@ -110,7 +110,7 @@ The free community edition of [IntelliJ IDEA](https://www.jetbrains.com/idea/) i
 
 ## Selenide
 
-## Allure Framework
+## Allure reports
 
 <br /><br /><br />
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />
