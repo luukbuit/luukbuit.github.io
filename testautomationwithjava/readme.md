@@ -142,8 +142,7 @@ Add the JUnit 5 and AssertJ dependencies.
 
 Later on other dependencies will be added to the pom.
 
-For the complete maven pom.xml
-see [https://github.com/luukbuit/luukbuit.github.io/blob/master/testautomationwithjava/pom.xml].
+For the complete maven pom.xml see [the github project](https://github.com/luukbuit/luukbuit.github.io/blob/master/testautomationwithjava/pom.xml).
 
 ## JUnit 5 and AssertJ
 
