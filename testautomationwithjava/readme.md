@@ -98,6 +98,8 @@ Always try to do test setup as much as possible in the unit test method itself.
 
 ## IDE
 
+The free community edition of [IntelliJ IDEA](https://www.jetbrains.com/idea/) is sufficient for test automation with Java. If you can afford it, buy the ultimate edition which includes database tools and support for SQL.   
+
 ## Maven
 
 ## JUnit 5 and AssertJ
