@@ -2,11 +2,13 @@
 
 - [Introduction](#introduction)
 - [Test Design](#test-design)
+- [IDE](#ide)
 - [Maven](#maven)
-- [AssertJ](#assertj)
+- [JUnit 5 and AssertJ](#junit-5-and-assertj)
 - [Jdbi](#jdbi)
 - [REST Assured](#rest-assured)
 - [Selenide](#selenide)
+- [Allure Framework](#allure-framework)
 
 ## Introduction
 
@@ -15,7 +17,7 @@ This is a limited and opinionated approach to test automation.
 - The only programming language used is Java (with a bit of SQL).
 - The scope is limited to web applications with a REST API and a relational database (for now).
 - Tools and libraries work well together.
-- Test code is clear and maintainable.
+- Test code is clear, consistent and maintainable.
 - Beautiful test reports are important.
 - Domain experts do not write tests.
 
@@ -31,15 +33,20 @@ If you have domain experts who want to write feature files in Gherkin syntax, th
 
 ## Test Design
 
+## IDE
+
 ## Maven
 
-## AssertJ
+## JUnit 5 and AssertJ
 
 ## Jdbi
 
 ## REST Assured
 
 ## Selenide
+
+## Allure Framework
+
 
 
 <hr>
