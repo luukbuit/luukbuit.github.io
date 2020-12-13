@@ -112,12 +112,16 @@ Java. If you can afford it, buy the ultimate edition which includes database too
 
 [Maven](https://maven.apache.org/) is a well known and much used build tool for Java projects.
 
+First set the minimal Java compiler version to 8.
+
 ```xml
 <properties>
     <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
 </properties>
 ```
+
+Add the JUnit 5 and AssertJ dependencies.
 
 ```xml
 <dependencies>
@@ -136,8 +140,10 @@ Java. If you can afford it, buy the ultimate edition which includes database too
 </dependencies>
 ```
 
+Later on other dependencies will be added to the pom.
+
 For the complete maven pom.xml
-see https://github.com/luukbuit/luukbuit.github.io/blob/master/testautomationwithjava/pom.xml.
+see [https://github.com/luukbuit/luukbuit.github.io/blob/master/testautomationwithjava/pom.xml].
 
 ## JUnit 5 and AssertJ
 
