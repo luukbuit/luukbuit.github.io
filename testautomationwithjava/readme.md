@@ -25,6 +25,10 @@ Imagine that you are a test automation engineer in a project with a Java backend
 
 If you are not afraid to improve your Java skills, and if you like to work together with the developers in your team on the test automation tasks, why not go Java all the way? The tools are perfect, the libraries well maintained, the test reports beautiful, and you can work on it with the whole team. 
 
+What about Cucumber?
+
+If you have domain experts who want to write feature files in Gherkin syntax, then you are really lucky. In that case it is definitely a good choice to invest in coding Cucumber step definitions. If you do not have such domain experts, adding Cucumber to your project is just overhead. 
+
 ## Test Design
 
 ## Maven
