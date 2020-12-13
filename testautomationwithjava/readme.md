@@ -48,6 +48,18 @@ helps you to achieve exactly that.
 Every test contains one or more steps and on or more assertions. A step is an action in a test scenario implemented as a method on a Page object, or an Api object. Assertions are utility methods to support asserting conditions in tests. Maybe it is best to show an example.
 
 ```java
+import java.util.List;
+
+public class SearchPageObject {
+
+    public List<String> searchFor(String blue_suede_shoes_performing_artist) {
+        // TODO write code that opens the webpages and does a search
+        return null;
+    }
+}
+``` 
+
+```java
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
