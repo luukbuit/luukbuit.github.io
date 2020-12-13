@@ -45,7 +45,9 @@ helps you to achieve exactly that.
 
 ### Separate steps from assertions
 
-Every test contains one or more steps and on or more assertions. A step is an action in a test scenario implemented as a method on a Page object, or an Api object. Assertions are utility methods to support asserting conditions in tests. Maybe it is best to show an example.
+Every test contains one or more steps and on or more assertions. A step is an action in a test scenario implemented as a
+method on a Page object, or an Api object. Assertions are utility methods to support asserting conditions in tests.
+Maybe it is best to show an example.
 
 ```java
 import java.util.List;
@@ -80,27 +82,62 @@ public class SearchTest {
 1. A step is performed by calling a method on the page object.
 2. Assert a condition by using a utility method from AssertJ.
 
-The term page object is [described by Martin Fowler](https://www.martinfowler.com/bliki/PageObject.html). 
+The term page object is [described by Martin Fowler](https://www.martinfowler.com/bliki/PageObject.html).
 
 ### Write simple steps
 
-A page object can have multiple little methods that do something on a webpage or part of the webpage. Note that the underlying technology (in this case maybe a Selenium call) is hidden from the unit test. The page object does not do any assertions, that is the responsibility of the unit test.
+A page object can have multiple little methods that do something on a webpage or part of the webpage. Note that the
+underlying technology (in this case maybe a Selenium call) is hidden from the unit test. The page object does not do any
+assertions, that is the responsibility of the unit test.
 
-There can be another kind of objects that contain steps, for example an API object that is responsible for calling the REST API with an HTTP client.
+There can be another kind of objects that contain steps, for example an API object that is responsible for calling the
+REST API with an HTTP client.
 
 By creating simple steps, they are easy to maintain, read and reuse.
 
 ### Write self-contained tests
 
-To promote the maintainability of the unit tests, it is important that the tests are self-contained. Every test can be run individually and is not dependent of other test, or a specific test order.  A change in one test, does not lead to breaking changes in other tests.
+To promote the maintainability of the unit tests, it is important that the tests are self-contained. Every test can be
+run individually and is not dependent of other test, or a specific test order. A change in one test, does not lead to
+breaking changes in other tests.
 
 Always try to do test setup as much as possible in the unit test method itself.
 
 ## IDE
 
-The free community edition of [IntelliJ IDEA](https://www.jetbrains.com/idea/) is sufficient for test automation with Java. If you can afford it, buy the ultimate edition which includes database tools and support for SQL.   
+The free community edition of [IntelliJ IDEA](https://www.jetbrains.com/idea/) is sufficient for test automation with
+Java. If you can afford it, buy the ultimate edition which includes database tools and support for SQL.
 
 ## Maven
+
+[Maven](https://maven.apache.org/) is a well known and much used build tool for Java projects.
+
+```xml
+<properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+</properties>
+```
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.7.0</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.18.1</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+For the complete maven pom.xml
+see https://github.com/luukbuit/luukbuit.github.io/blob/master/testautomationwithjava/pom.xml.
 
 ## JUnit 5 and AssertJ
 
