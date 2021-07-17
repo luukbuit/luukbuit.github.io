@@ -7,7 +7,8 @@
 - [JUnit 5 and AssertJ](#junit-5-and-assertj)
 - [Jdbi](#jdbi)
 - [REST Assured](#rest-assured)
-- [Selenide](#selenide)
+- [Playwright](#playwright)
+- [Mock-server](#mock-server)
 - [Allure reports](#allure-reports)
 
 ## Introduction
@@ -150,7 +151,14 @@ For the complete maven pom.xml see [the github project](https://github.com/luukb
 
 ## REST Assured
 
-## Selenide
+## Playwright
+
+https://playwright.dev/
+
+## Mock-server
+
+https://mock-server.com/
+
 
 ## Allure reports
 
