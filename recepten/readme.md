@@ -7,7 +7,7 @@
 
 Indiase topper voor 4 personen, eenpansgerecht
 
-### ingredienten
+### ingrediënten
 
 - blikje linzen (uitlekgewicht 250-300g)
 - 1 blokje groente bouillon
@@ -41,7 +41,7 @@ serveer met brood
 
 4 personen, oven, pan
 
-### ingredienten
+### ingrediënten
 
 - 500 g zoete tomaten (hier niet op besparen)
 - ui
@@ -58,3 +58,29 @@ serveer met brood
 - tortellini koken en samen met de geroosterde groenten aan tomatenblokjes toevoegen
 
 zet mooie olijfolie en een pepermolen op tafel
+
+## Risotto met tomaat en prei
+
+4 personen, over, pan
+
+### ingrediënten
+
+- lekkere tomaten in stukjes 500g
+- prei in ringen 2x
+- risotto _carnaroli_ 250g
+- witte wijn, half glas, optioneel
+- groentebouillon 750ml (3 maal de hoeveelheid risotto)
+- ui gesnipperd 1x
+- verse dille, fijngesneden 15g
+- geroosterde pijnboompitten 75g
+
+### bereiding
+
+- vul een met aluminiumfolie ovenschaal of pan met dekese met de tomaat en de prei, bestrooi ruim met peper, zout en olijfolie, stop 60 min in oven op 180 graden
+- fruit de ui in olijfolie
+- laat de risotto even meebakken in de ui, blus eventeel af met een half glas witte wijn
+- voeg de groentebouiilon toe, laat 18 minuten pruttelen, roer de laatste 5 minuten stevig door
+
+- als risotto klaar is, vuur uitdraaien
+- inhoud van ovenschaal bij de risotto scheppen (niet al het vocht mee), goed omscheppen
+- pijnboonmpitten en dille op het laatst toevoegen
