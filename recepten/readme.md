@@ -81,7 +81,6 @@ zet mooie olijfolie en een pepermolen op tafel
 - fruit de ui in olijfolie
 - laat de risotto even meebakken in de ui, blus eventeel af met een half glas witte wijn
 - voeg de groentebouiilon toe, laat 18 minuten pruttelen, roer de laatste 5 minuten stevig door
-
 - als risotto klaar is het vuur uitdraaien
 - inhoud van ovenschaal bij de risotto scheppen (niet al het vocht mee), goed omscheppen
 - pijnboonmpitten en dille op het laatst toevoegen
