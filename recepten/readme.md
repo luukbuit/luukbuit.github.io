@@ -2,6 +2,7 @@
 
 - [Dahl](#dahl)
 - [Torellini met geroosterde groenten](#torellini-met-geroosterde-groenten)
+- [Risotto met tomaat en prei](#risotto-met-tomaat-en-prei)
 
 ## Dahl
 
@@ -61,7 +62,7 @@ zet mooie olijfolie en een pepermolen op tafel
 
 ## Risotto met tomaat en prei
 
-4 personen, over, pan
+4 personen, oven, pan
 
 ### ingrediënten
 
@@ -76,11 +77,13 @@ zet mooie olijfolie en een pepermolen op tafel
 
 ### bereiding
 
-- vul een met aluminiumfolie ovenschaal of pan met dekese met de tomaat en de prei, bestrooi ruim met peper, zout en olijfolie, stop 60 min in oven op 180 graden
+- vul een met aluminiumfolie bedekte ovenschaal met de tomaat en de prei, bestrooi ruim met peper, zout en olijfolie, stop 60 min in oven op 180 graden
 - fruit de ui in olijfolie
 - laat de risotto even meebakken in de ui, blus eventeel af met een half glas witte wijn
 - voeg de groentebouiilon toe, laat 18 minuten pruttelen, roer de laatste 5 minuten stevig door
 
-- als risotto klaar is, vuur uitdraaien
+- als risotto klaar is het vuur uitdraaien
 - inhoud van ovenschaal bij de risotto scheppen (niet al het vocht mee), goed omscheppen
 - pijnboonmpitten en dille op het laatst toevoegen
+
+serveer met een siciliaanse pinot grigio
