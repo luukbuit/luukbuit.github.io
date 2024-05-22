@@ -1,1 +1,1 @@
-[vlier.pdf]
+[vlier](./vlier.pdf)
