@@ -1,11 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#2f6fdf"/>
-  <g fill="#ffffff">
-    <rect x="96" y="226" width="140" height="60" rx="30"/>
-    <rect x="136" y="186" width="60" height="140" rx="30"/>
-    <rect x="276" y="226" width="140" height="60" rx="30"/>
+  <!-- Een sprong op de getallenlijn, in het blauw van de app; geel is waar de sprong landt. -->
+  <rect width="512" height="512" rx="112" fill="#15508c"/>
+  <g transform="translate(0 -40)">
+    <line x1="72" y1="368" x2="440" y2="368" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+    <path d="M136 330 Q256 70 376 330" fill="none" stroke="#ffffff" stroke-width="28" stroke-linecap="round"/>
+    <circle cx="136" cy="368" r="30" fill="#ffffff"/>
+    <circle cx="376" cy="368" r="40" fill="#ffc531"/>
   </g>
-  <circle cx="166" cy="380" r="26" fill="#ffc531"/>
-  <circle cx="256" cy="380" r="26" fill="#ffc531"/>
-  <circle cx="346" cy="380" r="26" fill="#ff6b5a"/>
 </svg>
