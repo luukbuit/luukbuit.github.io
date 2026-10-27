@@ -1,0 +1,1 @@
+import{X as e}from"./app-CUSUMU0z.js";e();
