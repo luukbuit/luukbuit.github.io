@@ -1,0 +1,1 @@
+import{X as e}from"./app-BF-H5GbL.js";e();
