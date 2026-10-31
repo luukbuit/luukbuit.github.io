@@ -127,7 +127,7 @@
   .onder {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: flex-start;
     gap: 12px 24px;
     width: min(1080px, 100% - 32px);
@@ -135,7 +135,6 @@
     padding: 16px 0 24px;
     font-size: 15px;
   }
-  .onder > span { opacity: .55; }
   details { text-align: right; }
   summary {
     list-style: none;
@@ -220,7 +219,6 @@
   </main>
 
   <footer class="onder">
-    <span id="tally">0 komkommers vandaag</span>
     <details>
       <summary>instellingen</summary>
       <div class="instellingen">
@@ -245,7 +243,7 @@
   const $ = (id) => document.getElementById(id);
   const els = {
     time: $('time'), title: $('title'),
-    start: $('start'), reset: $('reset'), skip: $('skip'), tally: $('tally'),
+    start: $('start'), reset: $('reset'), skip: $('skip'),
     sound: $('sound'), auto: $('auto')
   };
 
@@ -263,15 +261,6 @@
     try { localStorage.setItem(sleutel, JSON.stringify(waarde)); } catch {}
   }
 
-  function vandaag() { return new Date().toISOString().slice(0, 10); }
-  function telling() {
-    const t = opslagLezen('komkommer-telling', null);
-    return t && t.dag === vandaag() ? t.aantal : 0;
-  }
-  function toonTelling() {
-    const n = telling();
-    els.tally.textContent = n + (n === 1 ? ' komkommer' : ' komkommers') + ' vandaag';
-  }
 
   function formatteer(s) {
     s = Math.max(0, Math.ceil(s));
@@ -514,11 +503,7 @@
     const was = fase;
     eindtijd = null;
     clearInterval(tikker);
-    if (was === 'werk') {
-      syncKomkommer(0, true);
-      opslagSchrijven('komkommer-telling', { dag: vandaag(), aantal: telling() + 1 });
-      toonTelling();
-    }
+    if (was === 'werk') syncKomkommer(0, true);
     alarm(was);
     zetFase(was === 'werk' ? 'pauze' : 'werk');
     if (els.auto.checked) start();
@@ -616,7 +601,6 @@
 
   els.sound.checked = opslagLezen('komkommer-sound', true);
   els.auto.checked = opslagLezen('komkommer-auto', false);
-  toonTelling();
   bouwKomkommer();
   zetKomkommer(0);
   herstel();
