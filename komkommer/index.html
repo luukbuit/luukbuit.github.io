@@ -224,6 +224,16 @@
     font-size: 16px;
     cursor: pointer;
   }
+  .linkje {
+    font: inherit;
+    font-size: 14px;
+    color: var(--blue);
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--blue);
+    padding: 0 0 1px;
+    cursor: pointer;
+  }
   .toggle input { accent-color: var(--blue); width: 16px; height: 16px; }
 
   .site-footer {
@@ -346,7 +356,7 @@
         </div>
         <div>
           <p class="kicker">Alarm</p>
-          <label class="toggle"><input type="checkbox" id="sound" checked><span>Geluid aan</span></label>
+          <label class="toggle"><input type="checkbox" id="sound" checked><span>Geluid aan</span> <button type="button" class="linkje" id="testgeluid">probeer</button></label>
           <label class="toggle"><input type="checkbox" id="notify"><span>Melding op het scherm</span></label>
           <label class="toggle"><input type="checkbox" id="auto" checked><span>Volgende blok automatisch starten</span></label>
         </div>
@@ -605,6 +615,8 @@
 
   // Geluid: een klein belletje via Web Audio, geen bestanden nodig.
   function zorgVoorAudio() {
+    // iOS zet webgeluid standaard uit als de telefoon op stil staat; 'playback' speelt toch af.
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch {}
     if (!audio) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (AC) audio = new AC();
@@ -644,6 +656,7 @@
     }
   }
 
+  $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje('werk'); });
   els.start.addEventListener('click', () => (eindtijd ? stop() : start()));
   els.reset.addEventListener('click', () => { stop(); zetFase(fase); els.start.textContent = 'Start'; });
   els.skip.addEventListener('click', () => {
