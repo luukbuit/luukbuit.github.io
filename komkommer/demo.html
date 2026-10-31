@@ -349,14 +349,16 @@
   function straal(x) {
     const t = Math.min(1, Math.max(0, (x - KK.x0) / (KK.x1 - KK.x0)));
     if (t < 0.2) return KK.r * (1 - Math.pow(1 - t / 0.2, 2));
-    if (t < 0.72) return KK.r;
-    let r = KK.r * (1 - 0.3 * Math.pow((t - 0.72) / 0.28, 1.3));
-    if (t > 0.96) r *= Math.sqrt(Math.max(0, 1 - Math.pow((t - 0.96) / 0.04, 2)));
+    if (t < 0.7) return KK.r;
+    // Steelkant: loopt geleidelijk taps toe naar een smalle hals waar het steeltje aan zit.
+    let r = KK.r * (1 - 0.68 * Math.pow((t - 0.7) / 0.3, 1.6));
+    if (t > 0.985) r *= Math.sqrt(Math.max(0, 1 - Math.pow((t - 0.985) / 0.015, 2)));
     return r;
   }
 
   function midden(x) {
-    const u = 2 * (x - KK.x0) / (KK.x1 - KK.x0) - 1;
+    // Diepste punt richting de steelkant, zodat ook de bovenrand daar naar de hals afloopt.
+    const u = ((x - KK.x0) / (KK.x1 - KK.x0) - 0.65) / 0.65;
     return KK.cy + KK.krom * (1 - u * u);
   }
 
