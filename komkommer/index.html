@@ -209,6 +209,25 @@
     .illustration svg { width: min(340px, 92%); }
   }
 
+  /* Liggend laptopscherm: komkommer groot links, klok rechts. */
+  @media (min-width: 1000px) and (min-aspect-ratio: 5/4) {
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+      grid-template-rows: 1fr auto auto auto 1fr;
+      column-gap: 48px;
+      justify-items: center;
+      width: min(1800px, 100%);
+      margin: 0 auto;
+      padding: 24px 56px;
+    }
+    .illustration { grid-row: 1 / -1; margin: 0; width: 100%; }
+    .illustration svg { width: min(100%, calc((100vh - 120px) * 480 / 340)); }
+    .wissel { grid-row: 2; }
+    .time { grid-row: 3; font-size: clamp(96px, 10.5vw, 200px); }
+    .bediening { grid-row: 4; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .kk-dobber, .schaaf-zweef { animation: none !important; }
   }
