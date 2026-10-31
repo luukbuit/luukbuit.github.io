@@ -348,6 +348,7 @@
           <p class="kicker">Alarm</p>
           <label class="toggle"><input type="checkbox" id="sound" checked><span>Geluid aan</span> <button type="button" class="linkje" id="testgeluid">probeer</button></label>
           <label class="toggle"><input type="checkbox" id="auto"><span>Volgende blok automatisch starten</span></label>
+          <p>Op een iPhone klinkt het alarm ook als Safari op de achtergrond staat, zolang je Safari niet helemaal afsluit.</p>
         </div>
       </section>
     </div>
@@ -602,11 +603,24 @@
     els.lede.textContent = TEKST[fase].lede;
     resterend = DUUR[fase];
     teken();
+    bewaar();
+  }
+
+  // De stand bewaren, zodat de timer doorloopt als de telefoon de pagina opnieuw laadt.
+  function bewaar() {
+    opslagSchrijven('komkommer-stand', { fase, eindtijd, resterend, pauzeStart });
   }
 
   function start() {
     zorgVoorAudio();
+    maakSporen();
     eindtijd = Date.now() + resterend * 1000;
+    loopAan();
+    speelSpoor();
+    bewaar();
+  }
+
+  function loopAan() {
     document.body.classList.add('running');
     els.start.textContent = 'Pauzeer';
     clearInterval(tikker);
@@ -615,14 +629,16 @@
     teken();
   }
 
-  function stop() {
+  function stop(spoorLatenKlinken = false) {
     if (eindtijd) resterend = Math.max(0, over());
     eindtijd = null;
     clearInterval(tikker);
     document.body.classList.remove('running');
     laatSchermLos();
+    if (!spoorLatenKlinken) stopSpoor();
     els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
     teken();
+    bewaar();
   }
 
   function tik() {
@@ -632,6 +648,8 @@
 
   function klaar() {
     const was = fase;
+    // Speelde het achtergrondspoor, dan klinkt (of klonk) het belletje daar al.
+    const spoorKlinkt = !!sporen && (sporen[was].ended || !sporen[was].paused);
     eindtijd = null;
     clearInterval(tikker);
     if (was === 'werk') {
@@ -639,10 +657,10 @@
       opslagSchrijven('komkommer-telling', { dag: vandaag(), aantal: telling() + 1 });
       toonTelling();
     }
-    alarm(was);
+    if (!spoorKlinkt) alarm(was);
     zetFase(was === 'werk' ? 'pauze' : 'werk');
     if (els.auto.checked) start();
-    else stop();
+    else stop(true);
   }
 
   // Geluid: een klein belletje via Web Audio, geen bestanden nodig.
@@ -670,7 +688,11 @@
   }
 
   function belletje(was) {
-    if (!audio) return;
+    // Mag er (nog) geen geluid, dan klinkt het belletje bij de eerste tik op het scherm.
+    if (!audio) {
+      document.addEventListener('pointerdown', () => { zorgVoorAudio(); belletje(was); }, { once: true });
+      return;
+    }
     const speel = () => {
       const t = audio.currentTime + 0.05;
       // Werk klaar: vrolijk omhoog. Pauze klaar: terug naar beneden, aan het werk.
@@ -680,8 +702,52 @@
       }
     };
     // Een telefoon kan het geluid na een tijdje stil zetten; eerst weer wekken.
-    if (audio.state === 'running') speel();
-    else audio.resume().then(speel, () => {});
+    let gespeeld = false;
+    const eenmaal = () => { if (!gespeeld) { gespeeld = true; speel(); } };
+    if (audio.state === 'running') return eenmaal();
+    audio.resume().then(eenmaal, () => {});
+    document.addEventListener('pointerdown', () => audio.resume().then(eenmaal, () => {}), { once: true });
+  }
+
+  // iPhone: Safari bevriest de pagina op de achtergrond, maar audio mag doorspelen.
+  // Daarom speelt er een spoor mee met 45 (of 15) minuten stilte en dan het belletje.
+  const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  let sporen = null;
+
+  function maakSporen() {
+    if (sporen || !IOS || TEMPO !== 1) return;
+    sporen = { werk: new Audio('alarm-werk.m4a'), pauze: new Audio('alarm-pauze.m4a') };
+    Object.entries(sporen).forEach(([naam, a]) => {
+      a.preload = 'auto';
+      // Het andere spoor nu alvast vrijgeven; iOS staat afspelen alleen toe na een tik.
+      if (naam !== fase) a.play().then(() => a.pause(), () => {});
+    });
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.setActionHandler('play', () => { if (!eindtijd) start(); });
+        navigator.mediaSession.setActionHandler('pause', () => { if (eindtijd) stop(); });
+      } catch {}
+    }
+  }
+
+  function speelSpoor() {
+    if (!sporen || !els.sound.checked || !eindtijd) return;
+    const a = sporen[fase];
+    const zet = () => { a.currentTime = Math.max(0, DUUR[fase] - over()); };
+    if (a.readyState >= 1) zet();
+    else a.addEventListener('loadedmetadata', zet, { once: true });
+    a.play().catch(() => {});
+    if ('mediaSession' in navigator && window.MediaMetadata) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: fase === 'werk' ? 'Werken · 45 min' : 'Pauze · 15 min',
+        artist: 'Komkommer'
+      });
+    }
+  }
+
+  function stopSpoor() {
+    if (sporen) Object.values(sporen).forEach(a => a.pause());
   }
 
   // Scherm aan houden zolang de timer loopt: een slapende telefoon bevriest de pagina en mist het alarm.
@@ -719,6 +785,7 @@
   }));
 
   ['sound', 'auto'].forEach(k => els[k].addEventListener('change', () => opslagSchrijven('komkommer-' + k, els[k].checked)));
+  els.sound.addEventListener('change', () => { if (els.sound.checked) speelSpoor(); else stopSpoor(); });
 
   // Spatiebalk start en pauzeert.
   document.addEventListener('keydown', (e) => {
@@ -740,7 +807,28 @@
   toonTelling();
   bouwKomkommer();
   zetKomkommer(0);
-  zetFase('werk', false);
+  herstel();
+
+  function herstel() {
+    const stand = opslagLezen('komkommer-stand', null);
+    const vers = stand && DUUR[stand.fase] && !(stand.eindtijd && Date.now() - stand.eindtijd > 3600e3);
+    if (!vers) return zetFase('werk', false);
+    if (stand.fase === 'pauze') {
+      gesneden = Math.min(KK.n, Math.max(0, stand.pauzeStart | 0));
+      zetKomkommer(gesneden);
+    }
+    zetFase(stand.fase, false);
+    resterend = Math.min(DUUR[fase], Math.max(0, Number(stand.resterend) || DUUR[fase]));
+    if (stand.eindtijd) {
+      eindtijd = stand.eindtijd;
+      loopAan();
+      tik();
+    } else {
+      els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
+      teken();
+    }
+    bewaar();
+  }
 </script>
 </body>
 </html>
