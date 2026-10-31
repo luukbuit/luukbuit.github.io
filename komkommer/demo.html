@@ -47,15 +47,32 @@
     padding: 24px 16px 8px;
   }
 
-  .fase {
-    margin: 4px 0 0;
-    text-transform: uppercase;
-    letter-spacing: .18em;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--blue);
+  .wissel {
+    display: inline-flex;
+    padding: 3px;
+    margin-top: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
   }
-  body.pauze .fase { color: var(--green); }
+  .wissel button {
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .16em;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink);
+    opacity: .5;
+    cursor: pointer;
+    transition: background-color .3s, color .3s, opacity .3s;
+  }
+  .wissel button:hover { opacity: .8; }
+  .wissel button[aria-pressed="true"] { opacity: 1; background: var(--blue); color: var(--white); }
+  body.pauze .wissel button[aria-pressed="true"] { background: var(--green); }
+  .wissel button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
   .time {
     font-size: clamp(88px, 17vw, 168px);
@@ -115,7 +132,7 @@
     height: auto;
     overflow: visible;
   }
-  #schaaf { transform: translate(0px, -70px) rotate(-16deg); }
+  #schaaf { transform: translate(0px, -64px) rotate(-16deg); }
   #schaaf-pos { transition: opacity .5s; }
   body.pauze #schaaf-pos { opacity: 0; }
   body.running:not(.pauze) .kk-dobber { animation: dobber 3s ease-in-out infinite; }
@@ -199,7 +216,7 @@
 
   <main>
     <div class="illustration" aria-hidden="true">
-          <svg viewBox="0 0 480 330" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 -10 480 340" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <clipPath id="kk-rest"><rect id="kk-rest-rect" x="0" y="0" width="520" height="400"/></clipPath>
             </defs>
@@ -227,22 +244,25 @@
             <g id="schaaf-pos" transform="translate(70 172)">
               <g class="schaaf-zweef">
                 <g id="schaaf">
-                  <rect x="-5" y="-70" width="10" height="60" rx="5" fill="#1e8bbc"/>
-                  <circle cx="0" cy="-61" r="2.5" fill="#eaf6fc"/>
-                  <path d="M-22 -12 H22 L30 32 Q0 40 -30 32 Z" fill="#cdeaf7" stroke="#1e8bbc" stroke-width="3" stroke-linejoin="round"/>
-                  <rect x="-17" y="-2" width="34" height="4" rx="2" fill="#1e8bbc"/>
+                  <!-- steel, met de gleuf vlak onder de hals en het blad dat naar het eind smaller wordt -->
+                  <path d="M-3.5 -14 C-5 -40 -5.5 -70 -4 -92 Q0 -97 4 -92 C5.5 -70 5 -40 3.5 -14 Z" fill="#1e8bbc"/>
+                  <path d="M-11.5 37 H11.5 Q14.5 37 15 34 L23 0 Q24 -4 20 -7 Q10 -12 5 -15 H-5 Q-10 -12 -20 -7 Q-24 -4 -23 0 L-15 34 Q-14.5 37 -11.5 37 Z" fill="#cdeaf7" stroke="#1e8bbc" stroke-width="2.5" stroke-linejoin="round"/>
+                  <path d="M-5 -20 H5 L4 -12 H-4 Z" fill="#1e8bbc"/>
+                  <rect x="-19" y="-1.5" width="38" height="3" rx="1.5" fill="#1e8bbc"/>
                 </g>
               </g>
             </g>
             <g id="vallers"></g>
           </svg>
     </div>
-    <p class="fase" id="title">Werken</p>
+    <div class="wissel" role="group" aria-label="Werken of pauze">
+      <button type="button" data-phase="werk" aria-pressed="true">werken</button>
+      <button type="button" data-phase="pauze" aria-pressed="false">pauze</button>
+    </div>
     <div class="time" id="time" aria-live="off">45:00</div>
     <button type="button" class="btn" id="start">Start</button>
     <div class="bijknoppen">
       <button type="button" class="linkje" id="reset">opnieuw</button>
-      <button type="button" class="linkje" id="skip">overslaan</button>
     </div>
   </main>
 
@@ -265,15 +285,11 @@
   const TEMPO = Math.max(1, Number(new URLSearchParams(location.search).get('tempo')) || 1);
   const MINUUT = 60 / TEMPO;
   const DUUR = { werk: 45 * MINUUT, pauze: 15 * MINUUT };
-  const TEKST = {
-    werk: { title: 'Werken' },
-    pauze: { title: 'Pauze' }
-  };
 
   const $ = (id) => document.getElementById(id);
   const els = {
-    time: $('time'), title: $('title'),
-    start: $('start'), reset: $('reset'), skip: $('skip'),
+    time: $('time'),
+    start: $('start'), reset: $('reset'),
     sound: $('sound'), auto: $('auto')
   };
 
@@ -418,16 +434,17 @@
     const plek = n - 1;
     gesneden = n;
     svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${midden(nieuw)})`);
-    // De schaaf zet aan onder de komkommer en wordt met de steel voorop naar boven getrokken.
-    const rust = 'translate(0px, -70px) rotate(-16deg)';
+    // De schaaf zakt naast het snijvlak naar beneden, schuift onder de komkommer
+    // en wordt dan met de steel voorop naar boven getrokken.
+    const rust = 'translate(0px, -64px) rotate(-16deg)';
     lopend.push(svg.schaaf.animate([
-      { transform: rust, opacity: 1, easing: 'ease-in' },
-      { transform: 'translate(0px, -76px) rotate(-16deg)', opacity: 0, offset: .15 },
-      { transform: 'translate(0px, 64px) rotate(-4deg)', opacity: 0, offset: .16, easing: 'ease-out' },
-      { transform: 'translate(0px, 50px) rotate(-4deg)', opacity: 1, offset: .3, easing: 'ease-in-out' },
-      { transform: 'translate(0px, -52px) rotate(-4deg)', opacity: 1, offset: .72, easing: 'ease-out' },
-      { transform: rust, opacity: 1 }
-    ], { duration: 1500 }));
+      { transform: rust, easing: 'ease-in-out' },
+      { transform: 'translate(-42px, -6px) rotate(-8deg)', offset: .25, easing: 'ease-in-out' },
+      { transform: 'translate(-34px, 60px) rotate(-4deg)', offset: .45, easing: 'ease-in-out' },
+      { transform: 'translate(0px, 56px) rotate(-4deg)', offset: .55, easing: 'ease-in-out' },
+      { transform: 'translate(0px, -52px) rotate(-4deg)', offset: .85, easing: 'ease-out' },
+      { transform: rust }
+    ], { duration: 2200 }));
 
     // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
     wachters.push(setTimeout(() => {
@@ -443,7 +460,7 @@
       ], { duration: 1100, easing: 'cubic-bezier(.3, 0, .8, .6)' });
       lopend.push(val);
       val.onfinish = () => { p.remove(); zetStapel(Math.max(stapel, plek + 1)); };
-    }, 760));
+    }, 1550));
   }
 
   function nieuweKomkommer(animeer) {
@@ -486,7 +503,7 @@
     if (fase === 'werk') nieuweKomkommer(animeer);
     else pauzeStart = gesneden;
     document.body.classList.toggle('pauze', fase === 'pauze');
-    els.title.textContent = TEKST[fase].title;
+    document.querySelectorAll('.wissel button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.phase === fase)));
     resterend = DUUR[fase];
     teken();
     bewaar();
@@ -605,12 +622,13 @@
   $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje('werk'); });
   els.start.addEventListener('click', () => (eindtijd ? stop() : start()));
   els.reset.addEventListener('click', () => { stop(); zetFase(fase); els.start.textContent = 'Start'; });
-  els.skip.addEventListener('click', () => {
+  document.querySelectorAll('.wissel button').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.phase === fase) return;
     const liep = !!eindtijd;
     stop();
-    zetFase(fase === 'werk' ? 'pauze' : 'werk');
+    zetFase(b.dataset.phase);
     if (liep) start(); else els.start.textContent = 'Start';
-  });
+  }));
 
   ['sound', 'auto'].forEach(k => els[k].addEventListener('change', () => opslagSchrijven('komkommer-' + k, els[k].checked)));
 
