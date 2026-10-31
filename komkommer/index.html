@@ -6,7 +6,15 @@
 <title>Komkommer</title>
 <meta name="description" content="Een studietimer met een komkommer: 45 minuten werken, 15 minuten pauze.">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/klokcijfers.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Rechte, even hoge cijfers voor de klok: Century Schoolbook-kloon, alleen 0-9 en ':'. */
+  @font-face {
+    font-family: "Komkommer Klok";
+    src: url("fonts/klokcijfers.woff2") format("woff2");
+    font-display: block;
+  }
+
   :root {
     --ink: #17232b;
     --paper: #eaf6fc;
@@ -75,6 +83,7 @@
   .wissel button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
   .time {
+    font-family: "Komkommer Klok", var(--font-schoolbook);
     font-size: clamp(88px, 17vw, 168px);
     line-height: 1;
     margin: 6px 0 28px;
