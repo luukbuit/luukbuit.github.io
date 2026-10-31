@@ -82,43 +82,45 @@
     font-variant-numeric: tabular-nums;
   }
 
-  .btn {
-    font: inherit;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .14em;
-    border-radius: 999px;
-    padding: 15px 44px;
+  .bediening {
+    display: grid;
+    grid-template-columns: 48px 76px 48px;
+    gap: 18px;
+    align-items: center;
+  }
+  .rond {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
     cursor: pointer;
+    padding: 0;
+    transition: background-color .2s, opacity .2s;
+  }
+  .hoofd {
+    grid-column: 2;
+    width: 76px;
+    height: 76px;
     border: 0;
     background: var(--blue);
     color: var(--white);
-    transition: background-color .2s;
   }
-  .btn:hover { background: #17739c; }
-  body.pauze .btn { background: var(--green); }
-  body.pauze .btn:hover { background: #3f7f2f; }
-
-  .bijknoppen {
-    display: flex;
-    gap: 22px;
-    justify-content: center;
-    margin-top: 18px;
-  }
-
-  .linkje {
-    font: inherit;
-    font-size: 15px;
-    color: var(--ink);
-    opacity: .55;
+  .hoofd:hover { background: #17739c; }
+  body.pauze .hoofd { background: var(--green); }
+  body.pauze .hoofd:hover { background: #3f7f2f; }
+  .hoofd .i-pauzeer { display: none; }
+  body.running .hoofd .i-start { display: none; }
+  body.running .hoofd .i-pauzeer { display: block; }
+  .terug {
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--line);
     background: none;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
+    color: var(--ink);
+    opacity: .6;
   }
-  .linkje:hover { opacity: 1; }
-  .btn:focus-visible, .linkje:focus-visible, .toggle input:focus-visible {
+  .terug:hover { opacity: 1; }
+
+  .rond:focus-visible, .toggle input:focus-visible {
     outline: 2px solid var(--blue);
     outline-offset: 3px;
   }
@@ -222,9 +224,6 @@
             </defs>
             <!-- schaduw -->
             <ellipse id="kk-schaduw" cx="243" cy="226" rx="197" ry="7" fill="#17232b" opacity=".07"/>
-            <!-- bordje voor de plakjes -->
-            <ellipse cx="120" cy="304" rx="80" ry="17" fill="#fafdff" stroke="#17232b2e"/>
-            <ellipse cx="120" cy="302" rx="58" ry="11" fill="none" stroke="#17232b1a"/>
             <g id="stapel"></g>
             <g id="kk-wrap">
               <g class="kk-dobber">
@@ -260,9 +259,14 @@
       <button type="button" data-phase="pauze" aria-pressed="false">pauze</button>
     </div>
     <div class="time" id="time" aria-live="off">45:00</div>
-    <button type="button" class="btn" id="start">Start</button>
-    <div class="bijknoppen">
-      <button type="button" class="linkje" id="reset">opnieuw</button>
+    <div class="bediening">
+      <button type="button" class="rond hoofd" id="start" aria-label="Start" title="Start">
+        <svg class="i-start" width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>
+        <svg class="i-pauzeer" width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.2" fill="currentColor"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.2" fill="currentColor"/></svg>
+      </button>
+      <button type="button" class="rond terug" id="reset" aria-label="Opnieuw" title="Opnieuw">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4.5h4.5"/></svg>
+      </button>
     </div>
   </main>
 
@@ -277,7 +281,7 @@
         </svg>
       </button>
     </span>
-    <label class="toggle"><input type="checkbox" id="auto"><span>pauze en werk vanzelf starten</span></label>
+    <label class="toggle" title="Na het werken start de pauze vanzelf, en na de pauze weer het werken"><input type="checkbox" id="auto"><span>automatisch doorlopen</span></label>
   </footer>
 
 <script>
@@ -521,9 +525,15 @@
     bewaar();
   }
 
+  // De hoofdknop toont alleen een icoon; het label is voor schermlezers en de tooltip.
+  function knop(label) {
+    els.start.setAttribute('aria-label', label);
+    els.start.title = label;
+  }
+
   function loopAan() {
     document.body.classList.add('running');
-    els.start.textContent = 'Pauzeer';
+    knop('Pauzeer');
     clearInterval(tikker);
     tikker = setInterval(tik, 250);
     houdSchermAan();
@@ -536,7 +546,7 @@
     clearInterval(tikker);
     document.body.classList.remove('running');
     laatSchermLos();
-    els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
+    knop(resterend < DUUR[fase] ? 'Verder' : 'Start');
     teken();
     bewaar();
   }
@@ -621,13 +631,12 @@
 
   $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje('werk'); });
   els.start.addEventListener('click', () => (eindtijd ? stop() : start()));
-  els.reset.addEventListener('click', () => { stop(); zetFase(fase); els.start.textContent = 'Start'; });
+  els.reset.addEventListener('click', () => { stop(); zetFase(fase); knop('Start'); });
   document.querySelectorAll('.wissel button').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.phase === fase) return;
-    const liep = !!eindtijd;
     stop();
     zetFase(b.dataset.phase);
-    if (liep) start(); else els.start.textContent = 'Start';
+    knop('Start');
   }));
 
   ['sound', 'auto'].forEach(k => els[k].addEventListener('change', () => opslagSchrijven('komkommer-' + k, els[k].checked)));
@@ -678,7 +687,7 @@
       loopAan();
       tik();
     } else {
-      els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
+      knop(resterend < DUUR[fase] ? 'Verder' : 'Start');
       teken();
     }
     bewaar();
