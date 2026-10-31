@@ -461,12 +461,12 @@
       return [0, 1].map(k => punten[j - 1][k] + f * (punten[j][k] - punten[j - 1][k]));
     };
     const zacht = (u) => 0.5 - 0.5 * Math.cos(Math.PI * u);
-    const frames = [];
+    const stappen = [];
     for (let i = 0; i <= 72; i++) {
       const s = zacht(i / 72);
       const [x, y] = op(s);
       const r = -16 + 12 * Math.sin(Math.PI * s);
-      frames.push({ transform: `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(2)}deg)` });
+      stappen.push({ x, y, r, s });
     }
     // Het moment waarop de gleuf op de terugweg omhoog het midden passeert.
     let snij = 0.7;
@@ -474,6 +474,13 @@
       const s0 = zacht((i - 1) / 1000), s1 = zacht(i / 1000);
       if (s1 > 0.6 && op(s0)[1] > 0 && op(s1)[1] <= 0) { snij = i / 1000; break; }
     }
+    // De schaaf rust boven het vorige plakje en schuift tijdens het omlaag gaan
+    // geleidelijk op naar het nieuwe, zodat hij bij de start niet verspringt.
+    const frames = (dx, dy) => stappen.map(({ x, y, r, s }) => {
+      const v = Math.min(1, s / 0.4);
+      const rest = 1 - v * v * (3 - 2 * v);
+      return { transform: `translate(${(x + dx * rest).toFixed(2)}px, ${(y + dy * rest).toFixed(2)}px) rotate(${r.toFixed(2)}deg)` };
+    });
     return { frames, snij, duur: 2400 };
   })();
 
@@ -482,7 +489,7 @@
     const plek = n - 1;
     gesneden = n;
     svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${midden(nieuw)})`);
-    lopend.push(svg.schaaf.animate(HAAL.frames, { duration: HAAL.duur }));
+    lopend.push(svg.schaaf.animate(HAAL.frames(oud - nieuw, midden(oud) - midden(nieuw)), { duration: HAAL.duur }));
 
     // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
     wachters.push(setTimeout(() => {
