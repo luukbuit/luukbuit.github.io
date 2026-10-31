@@ -189,7 +189,7 @@
     height: auto;
     overflow: visible;
   }
-  #schaaf { transform: translate(0px, -84px) rotate(-16deg); }
+  #schaaf { transform: translate(0px, -70px) rotate(-16deg); }
   #schaaf-pos { transition: opacity .5s; }
   body.pauze #schaaf-pos { opacity: 0; }
   body.running:not(.pauze) .kk-dobber { animation: dobber 3s ease-in-out infinite; }
@@ -296,11 +296,11 @@
         <div class="illustration" aria-hidden="true">
           <svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <clipPath id="kk-vorm"><path d="M112 130 H378 A42 42 0 0 1 378 214 H112 A42 42 0 0 1 112 130 Z"/></clipPath>
+              <clipPath id="kk-vorm"><path d="M86 146 H404 A26 26 0 0 1 404 198 H86 A26 26 0 0 1 86 146 Z"/></clipPath>
               <clipPath id="kk-rest"><rect id="kk-rest-rect" x="0" y="0" width="520" height="400"/></clipPath>
             </defs>
             <!-- schaduw -->
-            <ellipse id="kk-schaduw" cx="245" cy="244" rx="187" ry="9" fill="#17232b" opacity=".07"/>
+            <ellipse id="kk-schaduw" cx="245" cy="220" rx="197" ry="7" fill="#17232b" opacity=".07"/>
             <!-- bordje voor de plakjes -->
             <ellipse cx="120" cy="364" rx="80" ry="17" fill="#fafdff" stroke="#17232b2e"/>
             <ellipse cx="120" cy="362" rx="58" ry="11" fill="none" stroke="#17232b1a"/>
@@ -309,21 +309,24 @@
               <g class="kk-dobber">
                 <g id="kk" clip-path="url(#kk-rest)">
                   <g clip-path="url(#kk-vorm)">
-                    <!-- achterkant (donker vlak) en voorkant (licht vlak) -->
-                    <rect x="60" y="120" width="380" height="100" fill="#7cc25f"/>
-                    <path d="M60 194 Q245 204 440 190 V220 H60 Z" fill="#b7e29c"/>
+                    <!-- achterkant (donker vlak) en voorkant (licht vlak), gladde kaskomkommer -->
+                    <rect x="50" y="140" width="390" height="64" fill="#4f9136"/>
+                    <path d="M50 184 Q245 191 440 182 V204 H50 Z" fill="#7fbb5c"/>
+                    <!-- flauwe lengtestrepen -->
+                    <g fill="none" stroke="#6aa94c" stroke-width="1.5" stroke-linecap="round">
+                      <path d="M70 162 Q245 157 420 162"/>
+                      <path d="M64 174 Q245 171 426 174"/>
+                    </g>
+                    <g fill="#8ac766" opacity=".7">
+                      <circle cx="120" cy="167" r="1.3"/><circle cx="168" cy="179" r="1.3"/><circle cx="214" cy="164" r="1.3"/>
+                      <circle cx="262" cy="178" r="1.3"/><circle cx="310" cy="166" r="1.3"/><circle cx="356" cy="177" r="1.3"/>
+                    </g>
                   </g>
                   <!-- bovenlijn, zoals het dak van de villa -->
-                  <path d="M74 154 A42 42 0 0 1 112 130 H378 A42 42 0 0 1 416 154" fill="none" stroke="#3f8f2f" stroke-width="8" stroke-linecap="round"/>
-                  <!-- knobbeltjes -->
-                  <g fill="#5aa645">
-                    <circle cx="96" cy="170" r="3.5"/><circle cx="132" cy="186" r="3.5"/><circle cx="160" cy="160" r="3.5"/>
-                    <circle cx="198" cy="182" r="3.5"/><circle cx="236" cy="158" r="3.5"/><circle cx="270" cy="186" r="3.5"/>
-                    <circle cx="306" cy="162" r="3.5"/><circle cx="340" cy="184" r="3.5"/><circle cx="378" cy="164" r="3.5"/>
-                    <circle cx="396" cy="190" r="3"/><circle cx="176" cy="204" r="3"/><circle cx="292" cy="206" r="3"/>
-                  </g>
-                  <!-- steeltje -->
-                  <path d="M416 164 L446 150 L450 160 L420 178 Z" fill="#3f8f2f"/>
+                  <path d="M62 161 A26 26 0 0 1 86 146 H404 A26 26 0 0 1 428 161" fill="none" stroke="#2f6b22" stroke-width="6" stroke-linecap="round"/>
+                  <!-- bloempuntje en steeltje -->
+                  <circle cx="64" cy="172" r="2.5" fill="#2f6b22"/>
+                  <path d="M428 168 L446 164 L447 173 L429 177 Z" fill="#2f6b22"/>
                 </g>
                 <g id="snijvlak"></g>
               </g>
@@ -423,7 +426,8 @@
 
   // De komkommer: 45 plakjes, één per werkminuut.
   const NS = 'http://www.w3.org/2000/svg';
-  const KK = { x0: 70, x1: 420, r: 42, cy: 172, n: 45 };
+  const KK = { x0: 60, x1: 430, r: 26, cy: 172, n: 45 };
+  const SCHIJF = 22;   // straal van een plakje op het bordje
   const STAP = (KK.x1 - KK.x0) / KK.n;
   const rustig = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const svg = {
@@ -443,19 +447,19 @@
   function hoogte(x) {
     const links = KK.x0 + KK.r, rechts = KK.x1 - KK.r;
     const d = x < links ? links - x : x > rechts ? x - rechts : 0;
-    return Math.max(6, Math.sqrt(Math.max(0, KK.r * KK.r - d * d)));
+    return Math.max(4, Math.sqrt(Math.max(0, KK.r * KK.r - d * d)));
   }
 
   function maakPlakje() {
     const g = document.createElementNS(NS, 'g');
-    g.innerHTML = '<ellipse rx="30" ry="8" fill="#3f8f2f"/>' +
-      '<ellipse cy="-1.5" rx="27" ry="6.5" fill="#e9f7dd"/>' +
-      '<ellipse cy="-1.5" rx="16" ry="3.5" fill="#cdeab5"/>';
+    g.innerHTML = '<ellipse rx="22" ry="6" fill="#2f6b22"/>' +
+      '<ellipse cy="-1" rx="19.5" ry="4.6" fill="#eef8e2"/>' +
+      '<ellipse cy="-1" rx="10" ry="2.3" fill="#d3ecbc"/>';
     return g;
   }
 
   function stapelPlek(i) {
-    return [120 + ((i * 37) % 11 - 5) * 1.3, 356 - i * 2.1];
+    return [120 + ((i * 37) % 11 - 5) * 1.3, 356 - i * 1.8];
   }
 
   for (let i = 0; i < KK.n; i++) {
@@ -473,7 +477,7 @@
     svg.rest.setAttribute('x', x);
     svg.kk.style.visibility = op ? 'hidden' : '';
     svg.snijvlak.style.visibility = n > 0 && !op ? '' : 'hidden';
-    svg.snijvlak.setAttribute('transform', `translate(${x} ${KK.cy}) rotate(90) scale(${hoogte(x) / 30})`);
+    svg.snijvlak.setAttribute('transform', `translate(${x} ${KK.cy}) rotate(90) scale(${hoogte(x) / SCHIJF})`);
     svg.schaduw.style.visibility = op ? 'hidden' : '';
     svg.schaduw.setAttribute('cx', (x + KK.x1) / 2);
     svg.schaduw.setAttribute('rx', (KK.x1 - x) / 2 + 12);
@@ -499,13 +503,13 @@
     gesneden = n;
     svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${KK.cy})`);
     // De schaaf zet aan onder de komkommer en wordt met de steel voorop naar boven getrokken.
-    const rust = 'translate(0px, -84px) rotate(-16deg)';
+    const rust = 'translate(0px, -70px) rotate(-16deg)';
     lopend.push(svg.schaaf.animate([
       { transform: rust, opacity: 1, easing: 'ease-in' },
-      { transform: 'translate(0px, -90px) rotate(-16deg)', opacity: 0, offset: .15 },
-      { transform: 'translate(0px, 76px) rotate(-4deg)', opacity: 0, offset: .16, easing: 'ease-out' },
-      { transform: 'translate(0px, 62px) rotate(-4deg)', opacity: 1, offset: .3, easing: 'ease-in-out' },
-      { transform: 'translate(0px, -64px) rotate(-4deg)', opacity: 1, offset: .72, easing: 'ease-out' },
+      { transform: 'translate(0px, -76px) rotate(-16deg)', opacity: 0, offset: .15 },
+      { transform: 'translate(0px, 64px) rotate(-4deg)', opacity: 0, offset: .16, easing: 'ease-out' },
+      { transform: 'translate(0px, 50px) rotate(-4deg)', opacity: 1, offset: .3, easing: 'ease-in-out' },
+      { transform: 'translate(0px, -52px) rotate(-4deg)', opacity: 1, offset: .72, easing: 'ease-out' },
       { transform: rust, opacity: 1 }
     ], { duration: 1500 }));
 
@@ -517,7 +521,7 @@
       const p = maakPlakje();
       svg.vallers.append(p);
       const val = p.animate([
-        { transform: `translate(${midden}px, ${KK.cy}px) rotate(90deg) scale(${hoogte(midden) / 30})` },
+        { transform: `translate(${midden}px, ${KK.cy}px) rotate(90deg) scale(${hoogte(midden) / SCHIJF})` },
         { transform: `translate(${midden - 16}px, ${KK.cy - 34}px) rotate(-40deg) scale(.95)`, offset: .25 },
         { transform: `translate(${px}px, ${py}px) rotate(-360deg) scale(1)` }
       ], { duration: 1100, easing: 'cubic-bezier(.3, 0, .8, .6)' });
