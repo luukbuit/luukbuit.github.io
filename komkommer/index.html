@@ -238,6 +238,7 @@
     Op een iPhone klinkt het belletje alleen als deze pagina open en in beeld blijft (het scherm blijft vanzelf aan) en je iPhone niet op stil staat.
     <button type="button" class="sluit" id="iosmelding-sluit" aria-label="Melding sluiten">×</button>
   </div>
+  <div class="melding" id="geluidmelding" role="status" hidden>Tik ergens om het geluid weer aan te zetten.</div>
 
   <main>
     <div class="illustration" aria-hidden="true">
@@ -658,12 +659,35 @@
     osc.stop(begin + duur + 0.05);
   }
 
+  // Browsers laten een pagina pas geluid maken na een tik, klik of toets op die pagina.
+  // Elke eerste tik ontgrendelt het geluid, niet alleen de startknop.
+  const TIKKEN = ['pointerup', 'touchend', 'click', 'keydown'];
+  let naOntgrendelen = [];
+
+  function geluidKlaar() { return !!audio && audio.state === 'running'; }
+
+  function probeerOntgrendelen() {
+    zorgVoorAudio();
+    if (!audio) return;
+    audio.resume().then(() => { if (geluidKlaar()) ontgrendeld(); }, () => {});
+  }
+
+  function ontgrendeld() {
+    TIKKEN.forEach(e => document.removeEventListener(e, probeerOntgrendelen, true));
+    $('geluidmelding').hidden = true;
+    const wachtend = naOntgrendelen;
+    naOntgrendelen = [];
+    wachtend.forEach(f => f());
+  }
+
+  function wachtOpTik(f) {
+    if (f) naOntgrendelen.push(f);
+    TIKKEN.forEach(e => document.addEventListener(e, probeerOntgrendelen, true));
+  }
+
   function belletje(was) {
     // Mag er (nog) geen geluid, dan klinkt het belletje bij de eerste tik op het scherm.
-    if (!audio) {
-      document.addEventListener('pointerdown', () => { zorgVoorAudio(); belletje(was); }, { once: true });
-      return;
-    }
+    if (!audio) return wachtOpTik(() => belletje(was));
     const speel = () => {
       const t = audio.currentTime + 0.05;
       // Werk klaar: vrolijk omhoog. Pauze klaar: terug naar beneden, aan het werk.
@@ -675,9 +699,9 @@
     // Een telefoon kan het geluid na een tijdje stil zetten; eerst weer wekken.
     let gespeeld = false;
     const eenmaal = () => { if (!gespeeld) { gespeeld = true; speel(); } };
-    if (audio.state === 'running') return eenmaal();
-    audio.resume().then(eenmaal, () => {});
-    document.addEventListener('pointerdown', () => audio.resume().then(eenmaal, () => {}), { once: true });
+    if (geluidKlaar()) return eenmaal();
+    audio.resume().then(() => { if (geluidKlaar()) eenmaal(); }, () => {});
+    wachtOpTik(eenmaal);
   }
 
   // Scherm aan houden zolang de timer loopt: een slapende telefoon bevriest de pagina en mist het alarm.
@@ -737,6 +761,7 @@
     opslagSchrijven('komkommer-iosmelding-weg', true);
   });
 
+  wachtOpTik();
   bouwKomkommer();
   zetKomkommer(0);
   herstel();
@@ -754,6 +779,11 @@
     if (stand.eindtijd) {
       eindtijd = stand.eindtijd;
       loopAan();
+      // Na verversen zit het geluid weer op slot tot je ergens tikt; zeg dat erbij.
+      if (els.sound.checked) {
+        probeerOntgrendelen();
+        if (!geluidKlaar()) $('geluidmelding').hidden = false;
+      }
       tik();
     } else {
       knop(resterend < DUUR[fase] ? 'Verder' : 'Start');
