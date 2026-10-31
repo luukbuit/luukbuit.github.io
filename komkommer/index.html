@@ -189,23 +189,14 @@
     height: auto;
     overflow: visible;
   }
-  .cucumber {
-    transform-origin: 240px 200px;
-    transition: transform .9s cubic-bezier(.5, 0, .2, 1);
-  }
-  body.running .cucumber { animation: wiebel 4s ease-in-out infinite; }
-  body.pauze .cucumber { transform: rotate(-8deg) translateY(18px); }
-  body.pauze.running .cucumber { animation: adem 5s ease-in-out infinite; }
-  @keyframes wiebel {
-    0%, 100% { transform: rotate(-14deg); }
-    50% { transform: rotate(-11deg); }
-  }
-  @keyframes adem {
-    0%, 100% { transform: rotate(-8deg) translateY(18px); }
-    50% { transform: rotate(-8deg) translateY(12px); }
-  }
-  .zzz { opacity: 0; transition: opacity .6s; }
-  body.pauze .zzz { opacity: 1; }
+  #schaaf { transform: translate(0px, -58px) rotate(-16deg); }
+  #schaaf-pos { transition: opacity .5s; }
+  body.pauze #schaaf-pos { opacity: 0; }
+  body.running:not(.pauze) .kk-dobber { animation: dobber 3s ease-in-out infinite; }
+  body.running:not(.pauze) .schaaf-zweef { animation: zweef 2.4s ease-in-out infinite; }
+  @keyframes dobber { 50% { transform: translateY(-4px); } }
+  @keyframes zweef { 50% { transform: translateY(-7px); } }
+  #stapel > g { transition: opacity .4s; }
 
   .details {
     border-top: 1px solid var(--line);
@@ -261,7 +252,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cucumber { animation: none !important; transition: none; }
+    .kk-dobber, .schaaf-zweef { animation: none !important; }
   }
 </style>
 </head>
@@ -284,7 +275,7 @@
           <h1 id="title">Aan het werk.</h1>
           <div class="time" id="time" aria-live="off">45:00</div>
           <div class="progress" aria-hidden="true"><div id="bar"></div></div>
-          <p class="lede" id="lede">Vijfenveertig minuten geconcentreerd studeren. Daarna mag de komkommer even liggen.</p>
+          <p class="lede" id="lede">Elke minuut schaaft de kaasschaaf er een plakje af. Na drie kwartier is de komkommer op.</p>
           <div class="controls">
             <button type="button" class="btn primary" id="start">Start</button>
             <button type="button" class="btn" id="reset">Opnieuw</button>
@@ -294,46 +285,51 @@
 
         <div class="illustration" aria-hidden="true">
           <svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="kk-vorm"><path d="M112 130 H378 A42 42 0 0 1 378 214 H112 A42 42 0 0 1 112 130 Z"/></clipPath>
+              <clipPath id="kk-rest"><rect id="kk-rest-rect" x="0" y="0" width="520" height="400"/></clipPath>
+            </defs>
             <!-- schaduw -->
-            <ellipse cx="240" cy="352" rx="170" ry="16" fill="#17232b" opacity=".07"/>
-            <g class="cucumber">
-              <!-- achterkant (donker vlak) -->
-              <path d="M70 214 C70 170 118 150 190 146 L330 140 C386 138 418 160 418 196 C418 232 386 252 330 254 L190 260 C118 262 70 252 70 214 Z" fill="#7cc25f"/>
-              <!-- voorkant (licht vlak) -->
-              <path d="M76 216 C80 236 120 252 190 252 L330 246 C380 244 410 226 414 200 C406 226 376 238 330 238 L190 240 C130 240 90 232 76 216 Z" fill="#b7e29c"/>
-              <!-- bovenlijn, zoals het dak van de villa -->
-              <path d="M74 200 C82 168 124 152 190 148 L330 142 C382 140 412 158 418 190" fill="none" stroke="#3f8f2f" stroke-width="9" stroke-linecap="round"/>
-              <!-- knobbeltjes -->
-              <g fill="#5aa645">
-                <circle cx="140" cy="190" r="4"/>
-                <circle cx="196" cy="208" r="4"/>
-                <circle cx="252" cy="182" r="4"/>
-                <circle cx="300" cy="212" r="4"/>
-                <circle cx="350" cy="184" r="4"/>
-                <circle cx="168" cy="226" r="3.5"/>
-                <circle cx="230" cy="230" r="3.5"/>
-                <circle cx="330" cy="226" r="3.5"/>
-                <circle cx="110" cy="214" r="3.5"/>
+            <ellipse id="kk-schaduw" cx="245" cy="244" rx="187" ry="9" fill="#17232b" opacity=".07"/>
+            <!-- bordje voor de plakjes -->
+            <ellipse cx="120" cy="364" rx="80" ry="17" fill="#fafdff" stroke="#17232b2e"/>
+            <ellipse cx="120" cy="362" rx="58" ry="11" fill="none" stroke="#17232b1a"/>
+            <g id="stapel"></g>
+            <g id="kk-wrap">
+              <g class="kk-dobber">
+                <g id="kk" clip-path="url(#kk-rest)">
+                  <g clip-path="url(#kk-vorm)">
+                    <!-- achterkant (donker vlak) en voorkant (licht vlak) -->
+                    <rect x="60" y="120" width="380" height="100" fill="#7cc25f"/>
+                    <path d="M60 194 Q245 204 440 190 V220 H60 Z" fill="#b7e29c"/>
+                  </g>
+                  <!-- bovenlijn, zoals het dak van de villa -->
+                  <path d="M74 154 A42 42 0 0 1 112 130 H378 A42 42 0 0 1 416 154" fill="none" stroke="#3f8f2f" stroke-width="8" stroke-linecap="round"/>
+                  <!-- knobbeltjes -->
+                  <g fill="#5aa645">
+                    <circle cx="96" cy="170" r="3.5"/><circle cx="132" cy="186" r="3.5"/><circle cx="160" cy="160" r="3.5"/>
+                    <circle cx="198" cy="182" r="3.5"/><circle cx="236" cy="158" r="3.5"/><circle cx="270" cy="186" r="3.5"/>
+                    <circle cx="306" cy="162" r="3.5"/><circle cx="340" cy="184" r="3.5"/><circle cx="378" cy="164" r="3.5"/>
+                    <circle cx="396" cy="190" r="3"/><circle cx="176" cy="204" r="3"/><circle cx="292" cy="206" r="3"/>
+                  </g>
+                  <!-- steeltje -->
+                  <path d="M416 164 L446 150 L450 160 L420 178 Z" fill="#3f8f2f"/>
+                </g>
+                <g id="snijvlak"></g>
               </g>
-              <!-- steeltje -->
-              <path d="M416 186 L446 172 L450 182 L420 200 Z" fill="#3f8f2f"/>
-              <!-- plakje -->
-              <g transform="translate(66 286) rotate(-10)">
-                <ellipse cx="0" cy="0" rx="40" ry="16" fill="#3f8f2f"/>
-                <ellipse cx="0" cy="-3" rx="36" ry="13" fill="#e9f7dd"/>
-                <ellipse cx="0" cy="-3" rx="22" ry="7" fill="#cdeab5"/>
-                <g fill="#9fcf84">
-                  <circle cx="-12" cy="-3" r="1.8"/><circle cx="-4" cy="-6" r="1.8"/><circle cx="5" cy="-6" r="1.8"/>
-                  <circle cx="13" cy="-3" r="1.8"/><circle cx="4" cy="0" r="1.8"/><circle cx="-5" cy="0" r="1.8"/>
+            </g>
+            <!-- kaasschaaf -->
+            <g id="schaaf-pos" transform="translate(70 172)">
+              <g class="schaaf-zweef">
+                <g id="schaaf">
+                  <rect x="-5" y="-100" width="10" height="58" rx="5" fill="#1e8bbc"/>
+                  <circle cx="0" cy="-91" r="2.5" fill="#eaf6fc"/>
+                  <path d="M-22 -46 H22 L30 -2 Q0 6 -30 -2 Z" fill="#cdeaf7" stroke="#1e8bbc" stroke-width="3" stroke-linejoin="round"/>
+                  <rect x="-18" y="-13" width="36" height="4" rx="2" fill="#1e8bbc"/>
                 </g>
               </g>
             </g>
-            <!-- slaap-z'tjes tijdens de pauze -->
-            <g class="zzz" fill="#1e8bbc" font-family="Georgia, serif" font-style="italic">
-              <text x="380" y="110" font-size="30">z</text>
-              <text x="408" y="80" font-size="40">z</text>
-              <text x="442" y="44" font-size="52">z</text>
-            </g>
+            <g id="vallers"></g>
           </svg>
         </div>
       </section>
@@ -346,7 +342,7 @@
         </div>
         <div>
           <p class="kicker">Hoe het werkt</p>
-          <p>Werk 45 minuten, neem 15 minuten pauze, herhaal. Na elk blok klinkt een alarmpje en begint het volgende blok vanzelf.</p>
+          <p>Werk 45 minuten: elke minuut gaat er een plakje af, tot de komkommer op is. Dan 15 minuten pauze om de plakjes op te eten. Na elk blok klinkt een alarmpje.</p>
         </div>
         <div>
           <p class="kicker">Alarm</p>
@@ -366,10 +362,13 @@
   </footer>
 
 <script>
-  const DUUR = { werk: 45 * 60, pauze: 15 * 60 };
+  // ?tempo=30 laat de tijd 30 keer zo snel lopen, handig om te testen.
+  const TEMPO = Math.max(1, Number(new URLSearchParams(location.search).get('tempo')) || 1);
+  const MINUUT = 60 / TEMPO;
+  const DUUR = { werk: 45 * MINUUT, pauze: 15 * MINUUT };
   const TEKST = {
-    werk: { title: 'Aan het werk.', lede: 'Vijfenveertig minuten geconcentreerd studeren. Daarna mag de komkommer even liggen.' },
-    pauze: { title: 'Even pauze.', lede: 'Vijftien minuten niks. Sta op, drink wat water, eet een komkommer.' }
+    werk: { title: 'Aan het werk.', lede: 'Elke minuut schaaft de kaasschaaf er een plakje af. Na drie kwartier is de komkommer op.' },
+    pauze: { title: 'Even pauze.', lede: 'Vijftien minuten niks. Sta op, drink wat water en eet de plakjes op.' }
   };
 
   const $ = (id) => document.getElementById(id);
@@ -413,16 +412,150 @@
     return eindtijd ? (eindtijd - Date.now()) / 1000 : resterend;
   }
 
+  // De komkommer: 45 plakjes, één per werkminuut.
+  const NS = 'http://www.w3.org/2000/svg';
+  const KK = { x0: 70, x1: 420, r: 42, cy: 172, n: 45 };
+  const STAP = (KK.x1 - KK.x0) / KK.n;
+  const rustig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const svg = {
+    wrap: $('kk-wrap'), kk: $('kk'), rest: $('kk-rest-rect'), snijvlak: $('snijvlak'),
+    schaduw: $('kk-schaduw'), schaafPos: $('schaaf-pos'), schaaf: $('schaaf'),
+    stapel: $('stapel'), vallers: $('vallers')
+  };
+  let gesneden = 0;     // plakjes van de huidige komkommer af
+  let stapel = 0;       // plakjes op het bordje
+  let pauzeStart = 0;   // plakjes op het bordje aan het begin van de pauze
+  let lopend = [];
+  let wachters = [];
+
+  function snijX(n) { return KK.x0 + n * STAP; }
+
+  // Halve hoogte van de komkommer op plek x (de uiteinden zijn rond).
+  function hoogte(x) {
+    const links = KK.x0 + KK.r, rechts = KK.x1 - KK.r;
+    const d = x < links ? links - x : x > rechts ? x - rechts : 0;
+    return Math.max(6, Math.sqrt(Math.max(0, KK.r * KK.r - d * d)));
+  }
+
+  function maakPlakje() {
+    const g = document.createElementNS(NS, 'g');
+    g.innerHTML = '<ellipse rx="30" ry="8" fill="#3f8f2f"/>' +
+      '<ellipse cy="-1.5" rx="27" ry="6.5" fill="#e9f7dd"/>' +
+      '<ellipse cy="-1.5" rx="16" ry="3.5" fill="#cdeab5"/>';
+    return g;
+  }
+
+  function stapelPlek(i) {
+    return [120 + ((i * 37) % 11 - 5) * 1.3, 356 - i * 2.1];
+  }
+
+  for (let i = 0; i < KK.n; i++) {
+    const p = maakPlakje();
+    const [x, y] = stapelPlek(i);
+    p.setAttribute('transform', `translate(${x} ${y})`);
+    p.style.opacity = 0;
+    svg.stapel.append(p);
+  }
+  svg.snijvlak.append(maakPlakje());
+
+  function zetKomkommer(n) {
+    const x = snijX(n);
+    const op = n >= KK.n;
+    svg.rest.setAttribute('x', x);
+    svg.kk.style.visibility = op ? 'hidden' : '';
+    svg.snijvlak.style.visibility = n > 0 && !op ? '' : 'hidden';
+    svg.snijvlak.setAttribute('transform', `translate(${x} ${KK.cy}) rotate(90) scale(${hoogte(x) / 30})`);
+    svg.schaduw.style.visibility = op ? 'hidden' : '';
+    svg.schaduw.setAttribute('cx', (x + KK.x1) / 2);
+    svg.schaduw.setAttribute('rx', (KK.x1 - x) / 2 + 12);
+    svg.schaafPos.setAttribute('transform', `translate(${x} ${KK.cy})`);
+  }
+
+  function zetStapel(k) {
+    stapel = k;
+    [...svg.stapel.children].forEach((p, i) => { p.style.opacity = i < k ? 1 : 0; });
+  }
+
+  function stopAnimaties() {
+    lopend.forEach(a => a.cancel());
+    wachters.forEach(clearTimeout);
+    lopend = [];
+    wachters = [];
+    svg.vallers.replaceChildren();
+  }
+
+  function schaafAf(n) {
+    const oud = snijX(gesneden), nieuw = snijX(n);
+    const plek = n - 1;
+    gesneden = n;
+    svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${KK.cy})`);
+    const rust = 'translate(0px, -58px) rotate(-16deg)';
+    lopend.push(svg.schaaf.animate([
+      { transform: rust, opacity: 1 },
+      { transform: 'translate(0px, -50px) rotate(-4deg)', opacity: 1, offset: .2 },
+      { transform: 'translate(0px, 62px) rotate(-4deg)', opacity: 1, offset: .6 },
+      { transform: 'translate(0px, 70px) rotate(-4deg)', opacity: 0, offset: .8 },
+      { transform: rust, opacity: 0, offset: .81 },
+      { transform: rust, opacity: 1 }
+    ], { duration: 1300, easing: 'ease-in-out' }));
+
+    // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
+    wachters.push(setTimeout(() => {
+      zetKomkommer(n);
+      const midden = (oud + nieuw) / 2;
+      const [px, py] = stapelPlek(plek);
+      const p = maakPlakje();
+      svg.vallers.append(p);
+      const val = p.animate([
+        { transform: `translate(${midden}px, ${KK.cy}px) rotate(90deg) scale(${hoogte(midden) / 30})` },
+        { transform: `translate(${midden - 18}px, ${KK.cy + 24}px) rotate(-40deg) scale(.95)`, offset: .3 },
+        { transform: `translate(${px}px, ${py}px) rotate(-360deg) scale(1)` }
+      ], { duration: 950, easing: 'cubic-bezier(.4, 0, .8, .5)' });
+      lopend.push(val);
+      val.onfinish = () => { p.remove(); zetStapel(Math.max(stapel, plek + 1)); };
+    }, 480));
+  }
+
+  function nieuweKomkommer(animeer) {
+    stopAnimaties();
+    const hadIets = gesneden > 0;
+    gesneden = 0;
+    zetKomkommer(0);
+    zetStapel(0);
+    if (animeer && hadIets && !rustig) {
+      lopend.push(svg.wrap.animate(
+        [{ transform: 'translate(480px, 0px)' }, { transform: 'translate(0px, 0px)' }],
+        { duration: 900, easing: 'cubic-bezier(.2, .8, .2, 1)' }
+      ));
+    }
+  }
+
+  function syncKomkommer(s, animeer) {
+    if (fase === 'werk') {
+      const doel = Math.min(KK.n, Math.max(0, Math.floor((DUUR.werk - s) / MINUUT + 1e-6)));
+      if (doel === gesneden) return;
+      if (animeer && doel === gesneden + 1 && !document.hidden && !rustig) schaafAf(doel);
+      else { stopAnimaties(); gesneden = doel; zetKomkommer(doel); zetStapel(doel); }
+    } else {
+      if (svg.vallers.childElementCount) return;
+      const doel = Math.min(pauzeStart, Math.ceil(pauzeStart * s / DUUR.pauze - 1e-6));
+      if (doel !== stapel) zetStapel(doel);
+    }
+  }
+
   function teken() {
     const s = over();
-    const tijd = formatteer(s);
+    syncKomkommer(s, !!eindtijd);
+    const tijd = formatteer(s * TEMPO);
     els.time.textContent = tijd;
     els.bar.style.width = (100 * (1 - s / DUUR[fase])) + '%';
     document.title = (eindtijd ? tijd + ' · ' : '') + (fase === 'werk' ? 'Werken' : 'Pauze') + ' · Komkommer';
   }
 
-  function zetFase(nieuw) {
+  function zetFase(nieuw, animeer = true) {
     fase = nieuw;
+    if (fase === 'werk') nieuweKomkommer(animeer);
+    else pauzeStart = gesneden;
     document.body.classList.toggle('pauze', fase === 'pauze');
     tabs.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.phase === fase)));
     els.title.textContent = TEKST[fase].title;
@@ -460,6 +593,7 @@
     eindtijd = null;
     clearInterval(tikker);
     if (was === 'werk') {
+      syncKomkommer(0, true);
       opslagSchrijven('komkommer-telling', { dag: vandaag(), aantal: telling() + 1 });
       toonTelling();
     }
@@ -549,7 +683,8 @@
   els.auto.checked = opslagLezen('komkommer-auto', true);
   els.notify.checked = opslagLezen('komkommer-notify', false) && 'Notification' in window && Notification.permission === 'granted';
   toonTelling();
-  zetFase('werk');
+  zetKomkommer(0);
+  zetFase('werk', false);
 </script>
 </body>
 </html>
