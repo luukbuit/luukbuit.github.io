@@ -296,11 +296,10 @@
         <div class="illustration" aria-hidden="true">
           <svg viewBox="0 0 480 400" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <clipPath id="kk-vorm"><path d="M86 146 H404 A26 26 0 0 1 404 198 H86 A26 26 0 0 1 86 146 Z"/></clipPath>
               <clipPath id="kk-rest"><rect id="kk-rest-rect" x="0" y="0" width="520" height="400"/></clipPath>
             </defs>
             <!-- schaduw -->
-            <ellipse id="kk-schaduw" cx="245" cy="220" rx="197" ry="7" fill="#17232b" opacity=".07"/>
+            <ellipse id="kk-schaduw" cx="243" cy="226" rx="197" ry="7" fill="#17232b" opacity=".07"/>
             <!-- bordje voor de plakjes -->
             <ellipse cx="120" cy="364" rx="80" ry="17" fill="#fafdff" stroke="#17232b2e"/>
             <ellipse cx="120" cy="362" rx="58" ry="11" fill="none" stroke="#17232b1a"/>
@@ -308,25 +307,13 @@
             <g id="kk-wrap">
               <g class="kk-dobber">
                 <g id="kk" clip-path="url(#kk-rest)">
-                  <g clip-path="url(#kk-vorm)">
-                    <!-- achterkant (donker vlak) en voorkant (licht vlak), gladde kaskomkommer -->
-                    <rect x="50" y="140" width="390" height="64" fill="#4f9136"/>
-                    <path d="M50 184 Q245 191 440 182 V204 H50 Z" fill="#7fbb5c"/>
-                    <!-- flauwe lengtestrepen -->
-                    <g fill="none" stroke="#6aa94c" stroke-width="1.5" stroke-linecap="round">
-                      <path d="M70 162 Q245 157 420 162"/>
-                      <path d="M64 174 Q245 171 426 174"/>
-                    </g>
-                    <g fill="#8ac766" opacity=".7">
-                      <circle cx="120" cy="167" r="1.3"/><circle cx="168" cy="179" r="1.3"/><circle cx="214" cy="164" r="1.3"/>
-                      <circle cx="262" cy="178" r="1.3"/><circle cx="310" cy="166" r="1.3"/><circle cx="356" cy="177" r="1.3"/>
-                    </g>
-                  </g>
-                  <!-- bovenlijn, zoals het dak van de villa -->
-                  <path d="M62 161 A26 26 0 0 1 86 146 H404 A26 26 0 0 1 428 161" fill="none" stroke="#2f6b22" stroke-width="6" stroke-linecap="round"/>
-                  <!-- bloempuntje en steeltje -->
-                  <circle cx="64" cy="172" r="2.5" fill="#2f6b22"/>
-                  <path d="M428 168 L446 164 L447 173 L429 177 Z" fill="#2f6b22"/>
+                  <!-- de vorm wordt in het script uit een dikteprofiel berekend -->
+                  <path id="kk-donker" fill="#4f9136"/>
+                  <path id="kk-licht" fill="#7fbb5c"/>
+                  <g id="kk-ribbels" fill="#62a346" opacity=".7"></g>
+                  <path id="kk-dak" fill="none" stroke="#2f6b22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle id="kk-nopje" r="3" fill="#a9c94b"/>
+                  <path id="kk-steel" fill="#2f6b22"/>
                 </g>
                 <g id="snijvlak"></g>
               </g>
@@ -426,7 +413,7 @@
 
   // De komkommer: 45 plakjes, één per werkminuut.
   const NS = 'http://www.w3.org/2000/svg';
-  const KK = { x0: 60, x1: 430, r: 26, cy: 172, n: 45 };
+  const KK = { x0: 56, x1: 430, r: 24, cy: 160, krom: 20, n: 45 };
   const SCHIJF = 22;   // straal van een plakje op het bordje
   const STAP = (KK.x1 - KK.x0) / KK.n;
   const rustig = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -444,10 +431,49 @@
   function snijX(n) { return KK.x0 + n * STAP; }
 
   // Halve hoogte van de komkommer op plek x (de uiteinden zijn rond).
-  function hoogte(x) {
-    const links = KK.x0 + KK.r, rechts = KK.x1 - KK.r;
-    const d = x < links ? links - x : x > rechts ? x - rechts : 0;
-    return Math.max(4, Math.sqrt(Math.max(0, KK.r * KK.r - d * d)));
+  // Kaskomkommer: links de puntige bloemkant, rechts de smallere steelkant, licht krom.
+  function straal(x) {
+    const t = Math.min(1, Math.max(0, (x - KK.x0) / (KK.x1 - KK.x0)));
+    if (t < 0.2) return KK.r * (1 - Math.pow(1 - t / 0.2, 2));
+    if (t < 0.72) return KK.r;
+    let r = KK.r * (1 - 0.3 * Math.pow((t - 0.72) / 0.28, 1.3));
+    if (t > 0.96) r *= Math.sqrt(Math.max(0, 1 - Math.pow((t - 0.96) / 0.04, 2)));
+    return r;
+  }
+
+  function midden(x) {
+    const u = 2 * (x - KK.x0) / (KK.x1 - KK.x0) - 1;
+    return KK.cy + KK.krom * (1 - u * u);
+  }
+
+  function hoogte(x) { return Math.max(4, straal(x)); }
+
+  function lijn(punten) {
+    return punten.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  }
+
+  function bouwKomkommer() {
+    const N = 140, xs = [];
+    for (let i = 0; i <= N; i++) xs.push(KK.x0 + (KK.x1 - KK.x0) * i / N);
+    const boven = xs.map(x => [x, midden(x) - straal(x)]);
+    const onder = xs.map(x => [x, midden(x) + straal(x)]);
+    const binnen = xs.map(x => [x, midden(x) + 0.4 * straal(x)]);
+    $('kk-donker').setAttribute('d', lijn(boven.concat(onder.slice().reverse())) + ' Z');
+    $('kk-licht').setAttribute('d', lijn(onder.concat(binnen.slice().reverse())) + ' Z');
+    $('kk-dak').setAttribute('d', lijn(boven.filter(p => p[0] > KK.x0 + 10 && p[0] < KK.x1 - 6)));
+    // Ribbeltjes: korte streepjes die de kromming volgen.
+    let ribbels = '';
+    for (let i = 0; i < 30; i++) {
+      const x = KK.x0 + 40 + ((i * 53) % 97) / 97 * (KK.x1 - KK.x0 - 70);
+      const v = ((i * 31) % 17) / 17 * 1.1 - 0.7;
+      ribbels += `<ellipse cx="${x.toFixed(1)}" cy="${(midden(x) + v * straal(x)).toFixed(1)}" rx="${(2.5 + (i % 3)).toFixed(1)}" ry=".8"/>`;
+    }
+    $('kk-ribbels').innerHTML = ribbels;
+    const nop = $('kk-nopje');
+    nop.setAttribute('cx', KK.x0 - 1);
+    nop.setAttribute('cy', midden(KK.x0));
+    const sy = midden(KK.x1);
+    $('kk-steel').setAttribute('d', `M${KK.x1 - 3} ${sy - 4} L${KK.x1 + 12} ${sy - 5} L${KK.x1 + 12} ${sy + 3} L${KK.x1 - 3} ${sy + 4} Z`);
   }
 
   function maakPlakje() {
@@ -477,11 +503,11 @@
     svg.rest.setAttribute('x', x);
     svg.kk.style.visibility = op ? 'hidden' : '';
     svg.snijvlak.style.visibility = n > 0 && !op ? '' : 'hidden';
-    svg.snijvlak.setAttribute('transform', `translate(${x} ${KK.cy}) rotate(90) scale(${hoogte(x) / SCHIJF})`);
+    svg.snijvlak.setAttribute('transform', `translate(${x} ${midden(x)}) rotate(90) scale(${hoogte(x) / SCHIJF})`);
     svg.schaduw.style.visibility = op ? 'hidden' : '';
     svg.schaduw.setAttribute('cx', (x + KK.x1) / 2);
     svg.schaduw.setAttribute('rx', (KK.x1 - x) / 2 + 12);
-    svg.schaafPos.setAttribute('transform', `translate(${x} ${KK.cy})`);
+    svg.schaafPos.setAttribute('transform', `translate(${x} ${midden(x)})`);
   }
 
   function zetStapel(k) {
@@ -501,7 +527,7 @@
     const oud = snijX(gesneden), nieuw = snijX(n);
     const plek = n - 1;
     gesneden = n;
-    svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${KK.cy})`);
+    svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${midden(nieuw)})`);
     // De schaaf zet aan onder de komkommer en wordt met de steel voorop naar boven getrokken.
     const rust = 'translate(0px, -70px) rotate(-16deg)';
     lopend.push(svg.schaaf.animate([
@@ -516,13 +542,13 @@
     // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
     wachters.push(setTimeout(() => {
       zetKomkommer(n);
-      const midden = (oud + nieuw) / 2;
+      const mx = (oud + nieuw) / 2, my = midden(mx);
       const [px, py] = stapelPlek(plek);
       const p = maakPlakje();
       svg.vallers.append(p);
       const val = p.animate([
-        { transform: `translate(${midden}px, ${KK.cy}px) rotate(90deg) scale(${hoogte(midden) / SCHIJF})` },
-        { transform: `translate(${midden - 16}px, ${KK.cy - 34}px) rotate(-40deg) scale(.95)`, offset: .25 },
+        { transform: `translate(${mx}px, ${my}px) rotate(90deg) scale(${hoogte(mx) / SCHIJF})` },
+        { transform: `translate(${mx - 16}px, ${my - 34}px) rotate(-40deg) scale(.95)`, offset: .25 },
         { transform: `translate(${px}px, ${py}px) rotate(-360deg) scale(1)` }
       ], { duration: 1100, easing: 'cubic-bezier(.3, 0, .8, .6)' });
       lopend.push(val);
@@ -687,6 +713,7 @@
   els.sound.checked = opslagLezen('komkommer-sound', true);
   els.auto.checked = opslagLezen('komkommer-auto', true);
   toonTelling();
+  bouwKomkommer();
   zetKomkommer(0);
   zetFase('werk', false);
 </script>
