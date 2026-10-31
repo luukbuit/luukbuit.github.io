@@ -76,11 +76,14 @@
 
   .time {
     font-size: clamp(88px, 17vw, 168px);
-    letter-spacing: -.05em;
     line-height: 1;
     margin: 6px 0 28px;
-    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
+  /* Elk cijfer een vast vakje: de cijfers van dit lettertype verschillen in breedte,
+     waardoor de klok anders bij elke seconde heen en weer schuift. */
+  .time span { display: inline-block; width: .57em; text-align: center; }
+  .time .dp { width: .28em; }
 
   .bediening {
     display: grid;
@@ -259,7 +262,7 @@
       <button type="button" data-phase="werk" aria-pressed="true">werken</button>
       <button type="button" data-phase="pauze" aria-pressed="false">pauze</button>
     </div>
-    <div class="time" id="time" aria-live="off">45:00</div>
+    <div class="time" id="time" aria-live="off"><span>4</span><span>5</span><span class="dp">:</span><span>0</span><span>0</span></div>
     <div class="bediening">
       <button type="button" class="rond hoofd" id="start" aria-label="Start" title="Start">
         <svg class="i-start" width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>
@@ -540,7 +543,10 @@
     const s = over();
     syncKomkommer(s, !!eindtijd);
     const tijd = formatteer(s * TEMPO);
-    els.time.textContent = tijd;
+    [...tijd].forEach((ch, i) => {
+      const vakje = els.time.children[i];
+      if (vakje.textContent !== ch) vakje.textContent = ch;
+    });
     document.title = (eindtijd ? tijd + ' · ' : '') + (fase === 'werk' ? 'Werken' : 'Pauze') + ' · Komkommer';
   }
 
