@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Komkommer</title>
+<meta name="description" content="Een studietimer met een komkommer: 45 minuten werken, 15 minuten pauze.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --ink: #17232b;
+    --paper: #eaf6fc;
+    --pale: #cdeaf7;
+    --mid: #96d3ee;
+    --blue: #1e8bbc;
+    --white: #fafdff;
+    --line: #17232b2e;
+    --green: #4f9a3c;
+    --green-pale: #d7efc9;
+    --font-schoolbook: "Century Schoolbook", "Century Schoolbook L", "New Century Schoolbook", "TeX Gyre Schola", Georgia, serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-schoolbook);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .6s ease;
+  }
+
+  body.pauze { background: #eef8e8; }
+
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px 8px;
+  }
+
+  .fase {
+    margin: 4px 0 0;
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  body.pauze .fase { color: var(--green); }
+
+  .time {
+    font-size: clamp(88px, 17vw, 168px);
+    letter-spacing: -.05em;
+    line-height: 1;
+    margin: 6px 0 28px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .btn {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .14em;
+    border-radius: 999px;
+    padding: 15px 44px;
+    cursor: pointer;
+    border: 0;
+    background: var(--blue);
+    color: var(--white);
+    transition: background-color .2s;
+  }
+  .btn:hover { background: #17739c; }
+  body.pauze .btn { background: var(--green); }
+  body.pauze .btn:hover { background: #3f7f2f; }
+
+  .bijknoppen {
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    margin-top: 18px;
+  }
+
+  .linkje {
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    opacity: .55;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+  .linkje:hover { opacity: 1; }
+  .btn:focus-visible, .linkje:focus-visible, summary:focus-visible, .toggle input:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: 3px;
+  }
+
+  .illustration {
+    display: flex;
+    justify-content: center;
+  }
+  .illustration svg {
+    width: min(500px, 100%);
+    height: auto;
+    overflow: visible;
+  }
+  #schaaf { transform: translate(0px, -70px) rotate(-16deg); }
+  #schaaf-pos { transition: opacity .5s; }
+  body.pauze #schaaf-pos { opacity: 0; }
+  body.running:not(.pauze) .kk-dobber { animation: dobber 3s ease-in-out infinite; }
+  body.running:not(.pauze) .schaaf-zweef { animation: zweef 2.4s ease-in-out infinite; }
+  @keyframes dobber { 50% { transform: translateY(-4px); } }
+  @keyframes zweef { 50% { transform: translateY(-7px); } }
+  #stapel > g { transition: opacity .4s; }
+
+  .onder {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px 24px;
+    width: min(1080px, 100% - 32px);
+    margin: 0 auto;
+    padding: 16px 0 24px;
+    font-size: 15px;
+  }
+  .onder > span { opacity: .55; }
+  details { text-align: right; }
+  summary {
+    list-style: none;
+    cursor: pointer;
+    opacity: .55;
+  }
+  summary::-webkit-details-marker { display: none; }
+  details[open] summary { opacity: 1; }
+  .instellingen {
+    margin-top: 10px;
+    display: grid;
+    gap: 10px;
+    justify-items: end;
+    text-align: right;
+  }
+  .toggle {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    cursor: pointer;
+  }
+  .toggle input { accent-color: var(--blue); width: 16px; height: 16px; margin: 0; }
+  .noot { margin: 0; max-width: 300px; font-size: 13px; line-height: 1.45; opacity: .6; }
+
+  @media (max-width: 760px) {
+    .illustration svg { width: min(340px, 92%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kk-dobber, .schaaf-zweef { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <div class="illustration" aria-hidden="true">
+          <svg viewBox="0 0 480 330" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="kk-rest"><rect id="kk-rest-rect" x="0" y="0" width="520" height="400"/></clipPath>
+            </defs>
+            <!-- schaduw -->
+            <ellipse id="kk-schaduw" cx="243" cy="226" rx="197" ry="7" fill="#17232b" opacity=".07"/>
+            <!-- bordje voor de plakjes -->
+            <ellipse cx="120" cy="304" rx="80" ry="17" fill="#fafdff" stroke="#17232b2e"/>
+            <ellipse cx="120" cy="302" rx="58" ry="11" fill="none" stroke="#17232b1a"/>
+            <g id="stapel"></g>
+            <g id="kk-wrap">
+              <g class="kk-dobber">
+                <g id="kk" clip-path="url(#kk-rest)">
+                  <!-- de vorm wordt in het script uit een dikteprofiel berekend -->
+                  <path id="kk-donker" fill="#4f9136"/>
+                  <path id="kk-licht" fill="#7fbb5c"/>
+                  <g id="kk-ribbels" fill="#62a346" opacity=".7"></g>
+                  <path id="kk-dak" fill="none" stroke="#2f6b22" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle id="kk-nopje" r="3" fill="#a9c94b"/>
+                  <path id="kk-steel" fill="#2f6b22"/>
+                </g>
+                <g id="snijvlak"></g>
+              </g>
+            </g>
+            <!-- kaasschaaf -->
+            <g id="schaaf-pos" transform="translate(70 172)">
+              <g class="schaaf-zweef">
+                <g id="schaaf">
+                  <rect x="-5" y="-70" width="10" height="60" rx="5" fill="#1e8bbc"/>
+                  <circle cx="0" cy="-61" r="2.5" fill="#eaf6fc"/>
+                  <path d="M-22 -12 H22 L30 32 Q0 40 -30 32 Z" fill="#cdeaf7" stroke="#1e8bbc" stroke-width="3" stroke-linejoin="round"/>
+                  <rect x="-17" y="-2" width="34" height="4" rx="2" fill="#1e8bbc"/>
+                </g>
+              </g>
+            </g>
+            <g id="vallers"></g>
+          </svg>
+    </div>
+    <p class="fase" id="title">Werken</p>
+    <div class="time" id="time" aria-live="off">45:00</div>
+    <button type="button" class="btn" id="start">Start</button>
+    <div class="bijknoppen">
+      <button type="button" class="linkje" id="reset">opnieuw</button>
+      <button type="button" class="linkje" id="skip">overslaan</button>
+    </div>
+  </main>
+
+  <footer class="onder">
+    <span id="tally">0 komkommers vandaag</span>
+    <details>
+      <summary>instellingen</summary>
+      <div class="instellingen">
+        <label class="toggle"><span>geluid</span><input type="checkbox" id="sound" checked></label>
+        <button type="button" class="linkje" id="testgeluid">geluid proberen</button>
+        <label class="toggle"><span>volgende blok vanzelf starten</span><input type="checkbox" id="auto"></label>
+        <p class="noot">Op een iPhone moet Safari open blijven. Staat de iPhone op stil, dan hoor je het belletje niet.</p>
+      </div>
+    </details>
+  </footer>
+
+<script>
+  // ?tempo=30 laat de tijd 30 keer zo snel lopen, handig om te testen.
+  const TEMPO = Math.max(1, Number(new URLSearchParams(location.search).get('tempo')) || 1);
+  const MINUUT = 60 / TEMPO;
+  const DUUR = { werk: 45 * MINUUT, pauze: 15 * MINUUT };
+  const TEKST = {
+    werk: { title: 'Werken' },
+    pauze: { title: 'Pauze' }
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const els = {
+    time: $('time'), title: $('title'),
+    start: $('start'), reset: $('reset'), skip: $('skip'), tally: $('tally'),
+    sound: $('sound'), auto: $('auto')
+  };
+
+  let fase = 'werk';
+  let resterend = DUUR.werk;   // seconden, als de timer stilstaat
+  let eindtijd = null;         // ms-tijdstempel, als de timer loopt
+  let tikker = null;
+  let audio = null;
+
+  function opslagLezen(sleutel, standaard) {
+    try { const v = localStorage.getItem(sleutel); return v === null ? standaard : JSON.parse(v); }
+    catch { return standaard; }
+  }
+  function opslagSchrijven(sleutel, waarde) {
+    try { localStorage.setItem(sleutel, JSON.stringify(waarde)); } catch {}
+  }
+
+  function vandaag() { return new Date().toISOString().slice(0, 10); }
+  function telling() {
+    const t = opslagLezen('komkommer-telling', null);
+    return t && t.dag === vandaag() ? t.aantal : 0;
+  }
+  function toonTelling() {
+    const n = telling();
+    els.tally.textContent = n + (n === 1 ? ' komkommer' : ' komkommers') + ' vandaag';
+  }
+
+  function formatteer(s) {
+    s = Math.max(0, Math.ceil(s));
+    return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+  }
+
+  function over() {
+    return eindtijd ? (eindtijd - Date.now()) / 1000 : resterend;
+  }
+
+  // De komkommer: 45 plakjes, één per werkminuut.
+  const NS = 'http://www.w3.org/2000/svg';
+  const KK = { x0: 56, x1: 430, r: 24, cy: 160, krom: 20, n: 45 };
+  const SCHIJF = 22;   // straal van een plakje op het bordje
+  const STAP = (KK.x1 - KK.x0) / KK.n;
+  const rustig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const svg = {
+    wrap: $('kk-wrap'), kk: $('kk'), rest: $('kk-rest-rect'), snijvlak: $('snijvlak'),
+    schaduw: $('kk-schaduw'), schaafPos: $('schaaf-pos'), schaaf: $('schaaf'),
+    stapel: $('stapel'), vallers: $('vallers')
+  };
+  let gesneden = 0;     // plakjes van de huidige komkommer af
+  let stapel = 0;       // plakjes op het bordje
+  let pauzeStart = 0;   // plakjes op het bordje aan het begin van de pauze
+  let lopend = [];
+  let wachters = [];
+
+  function snijX(n) { return KK.x0 + n * STAP; }
+
+  // Halve hoogte van de komkommer op plek x (de uiteinden zijn rond).
+  // Kaskomkommer: links de puntige bloemkant, rechts de smallere steelkant, licht krom.
+  function straal(x) {
+    const t = Math.min(1, Math.max(0, (x - KK.x0) / (KK.x1 - KK.x0)));
+    if (t < 0.2) return KK.r * (1 - Math.pow(1 - t / 0.2, 2));
+    if (t < 0.72) return KK.r;
+    let r = KK.r * (1 - 0.3 * Math.pow((t - 0.72) / 0.28, 1.3));
+    if (t > 0.96) r *= Math.sqrt(Math.max(0, 1 - Math.pow((t - 0.96) / 0.04, 2)));
+    return r;
+  }
+
+  function midden(x) {
+    const u = 2 * (x - KK.x0) / (KK.x1 - KK.x0) - 1;
+    return KK.cy + KK.krom * (1 - u * u);
+  }
+
+  function hoogte(x) { return Math.max(4, straal(x)); }
+
+  function lijn(punten) {
+    return punten.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  }
+
+  function bouwKomkommer() {
+    const N = 140, xs = [];
+    for (let i = 0; i <= N; i++) xs.push(KK.x0 + (KK.x1 - KK.x0) * i / N);
+    const boven = xs.map(x => [x, midden(x) - straal(x)]);
+    const onder = xs.map(x => [x, midden(x) + straal(x)]);
+    const binnen = xs.map(x => [x, midden(x) + 0.4 * straal(x)]);
+    $('kk-donker').setAttribute('d', lijn(boven.concat(onder.slice().reverse())) + ' Z');
+    $('kk-licht').setAttribute('d', lijn(onder.concat(binnen.slice().reverse())) + ' Z');
+    $('kk-dak').setAttribute('d', lijn(boven.filter(p => p[0] > KK.x0 + 10 && p[0] < KK.x1 - 6)));
+    // Ribbeltjes: korte streepjes die de kromming volgen.
+    let ribbels = '';
+    for (let i = 0; i < 30; i++) {
+      const x = KK.x0 + 40 + ((i * 53) % 97) / 97 * (KK.x1 - KK.x0 - 70);
+      const v = ((i * 31) % 17) / 17 * 1.1 - 0.7;
+      ribbels += `<ellipse cx="${x.toFixed(1)}" cy="${(midden(x) + v * straal(x)).toFixed(1)}" rx="${(2.5 + (i % 3)).toFixed(1)}" ry=".8"/>`;
+    }
+    $('kk-ribbels').innerHTML = ribbels;
+    const nop = $('kk-nopje');
+    nop.setAttribute('cx', KK.x0 - 1);
+    nop.setAttribute('cy', midden(KK.x0));
+    const sy = midden(KK.x1);
+    $('kk-steel').setAttribute('d', `M${KK.x1 - 3} ${sy - 4} L${KK.x1 + 12} ${sy - 5} L${KK.x1 + 12} ${sy + 3} L${KK.x1 - 3} ${sy + 4} Z`);
+  }
+
+  function maakPlakje() {
+    const g = document.createElementNS(NS, 'g');
+    g.innerHTML = '<ellipse rx="22" ry="6" fill="#2f6b22"/>' +
+      '<ellipse cy="-1" rx="19.5" ry="4.6" fill="#eef8e2"/>' +
+      '<ellipse cy="-1" rx="10" ry="2.3" fill="#d3ecbc"/>';
+    return g;
+  }
+
+  function stapelPlek(i) {
+    return [120 + ((i * 37) % 11 - 5) * 1.3, 296 - i * 1.8];
+  }
+
+  for (let i = 0; i < KK.n; i++) {
+    const p = maakPlakje();
+    const [x, y] = stapelPlek(i);
+    p.setAttribute('transform', `translate(${x} ${y})`);
+    p.style.opacity = 0;
+    svg.stapel.append(p);
+  }
+  svg.snijvlak.append(maakPlakje());
+
+  function zetKomkommer(n) {
+    const x = snijX(n);
+    const op = n >= KK.n;
+    svg.rest.setAttribute('x', x);
+    svg.kk.style.visibility = op ? 'hidden' : '';
+    svg.snijvlak.style.visibility = n > 0 && !op ? '' : 'hidden';
+    svg.snijvlak.setAttribute('transform', `translate(${x} ${midden(x)}) rotate(90) scale(${hoogte(x) / SCHIJF})`);
+    svg.schaduw.style.visibility = op ? 'hidden' : '';
+    svg.schaduw.setAttribute('cx', (x + KK.x1) / 2);
+    svg.schaduw.setAttribute('rx', (KK.x1 - x) / 2 + 12);
+    svg.schaafPos.setAttribute('transform', `translate(${x} ${midden(x)})`);
+  }
+
+  function zetStapel(k) {
+    stapel = k;
+    [...svg.stapel.children].forEach((p, i) => { p.style.opacity = i < k ? 1 : 0; });
+  }
+
+  function stopAnimaties() {
+    lopend.forEach(a => a.cancel());
+    wachters.forEach(clearTimeout);
+    lopend = [];
+    wachters = [];
+    svg.vallers.replaceChildren();
+  }
+
+  function schaafAf(n) {
+    const oud = snijX(gesneden), nieuw = snijX(n);
+    const plek = n - 1;
+    gesneden = n;
+    svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${midden(nieuw)})`);
+    // De schaaf zet aan onder de komkommer en wordt met de steel voorop naar boven getrokken.
+    const rust = 'translate(0px, -70px) rotate(-16deg)';
+    lopend.push(svg.schaaf.animate([
+      { transform: rust, opacity: 1, easing: 'ease-in' },
+      { transform: 'translate(0px, -76px) rotate(-16deg)', opacity: 0, offset: .15 },
+      { transform: 'translate(0px, 64px) rotate(-4deg)', opacity: 0, offset: .16, easing: 'ease-out' },
+      { transform: 'translate(0px, 50px) rotate(-4deg)', opacity: 1, offset: .3, easing: 'ease-in-out' },
+      { transform: 'translate(0px, -52px) rotate(-4deg)', opacity: 1, offset: .72, easing: 'ease-out' },
+      { transform: rust, opacity: 1 }
+    ], { duration: 1500 }));
+
+    // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
+    wachters.push(setTimeout(() => {
+      zetKomkommer(n);
+      const mx = (oud + nieuw) / 2, my = midden(mx);
+      const [px, py] = stapelPlek(plek);
+      const p = maakPlakje();
+      svg.vallers.append(p);
+      const val = p.animate([
+        { transform: `translate(${mx}px, ${my}px) rotate(90deg) scale(${hoogte(mx) / SCHIJF})` },
+        { transform: `translate(${mx - 16}px, ${my - 34}px) rotate(-40deg) scale(.95)`, offset: .25 },
+        { transform: `translate(${px}px, ${py}px) rotate(-360deg) scale(1)` }
+      ], { duration: 1100, easing: 'cubic-bezier(.3, 0, .8, .6)' });
+      lopend.push(val);
+      val.onfinish = () => { p.remove(); zetStapel(Math.max(stapel, plek + 1)); };
+    }, 760));
+  }
+
+  function nieuweKomkommer(animeer) {
+    stopAnimaties();
+    const hadIets = gesneden > 0;
+    gesneden = 0;
+    zetKomkommer(0);
+    zetStapel(0);
+    if (animeer && hadIets && !rustig) {
+      lopend.push(svg.wrap.animate(
+        [{ transform: 'translate(480px, 0px)' }, { transform: 'translate(0px, 0px)' }],
+        { duration: 900, easing: 'cubic-bezier(.2, .8, .2, 1)' }
+      ));
+    }
+  }
+
+  function syncKomkommer(s, animeer) {
+    if (fase === 'werk') {
+      const doel = Math.min(KK.n, Math.max(0, Math.floor((DUUR.werk - s) / MINUUT + 1e-6)));
+      if (doel === gesneden) return;
+      if (animeer && doel === gesneden + 1 && !document.hidden && !rustig) schaafAf(doel);
+      else { stopAnimaties(); gesneden = doel; zetKomkommer(doel); zetStapel(doel); }
+    } else {
+      if (svg.vallers.childElementCount) return;
+      const doel = Math.min(pauzeStart, Math.ceil(pauzeStart * s / DUUR.pauze - 1e-6));
+      if (doel !== stapel) zetStapel(doel);
+    }
+  }
+
+  function teken() {
+    const s = over();
+    syncKomkommer(s, !!eindtijd);
+    const tijd = formatteer(s * TEMPO);
+    els.time.textContent = tijd;
+    document.title = (eindtijd ? tijd + ' · ' : '') + (fase === 'werk' ? 'Werken' : 'Pauze') + ' · Komkommer';
+  }
+
+  function zetFase(nieuw, animeer = true) {
+    fase = nieuw;
+    if (fase === 'werk') nieuweKomkommer(animeer);
+    else pauzeStart = gesneden;
+    document.body.classList.toggle('pauze', fase === 'pauze');
+    els.title.textContent = TEKST[fase].title;
+    resterend = DUUR[fase];
+    teken();
+    bewaar();
+  }
+
+  // De stand bewaren, zodat de timer doorloopt als de telefoon de pagina opnieuw laadt.
+  function bewaar() {
+    opslagSchrijven('komkommer-stand', { fase, eindtijd, resterend, pauzeStart });
+  }
+
+  function start() {
+    zorgVoorAudio();
+    eindtijd = Date.now() + resterend * 1000;
+    loopAan();
+    bewaar();
+  }
+
+  function loopAan() {
+    document.body.classList.add('running');
+    els.start.textContent = 'Pauzeer';
+    clearInterval(tikker);
+    tikker = setInterval(tik, 250);
+    houdSchermAan();
+    teken();
+  }
+
+  function stop() {
+    if (eindtijd) resterend = Math.max(0, over());
+    eindtijd = null;
+    clearInterval(tikker);
+    document.body.classList.remove('running');
+    laatSchermLos();
+    els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
+    teken();
+    bewaar();
+  }
+
+  function tik() {
+    if (over() <= 0) klaar();
+    else teken();
+  }
+
+  function klaar() {
+    const was = fase;
+    eindtijd = null;
+    clearInterval(tikker);
+    if (was === 'werk') {
+      syncKomkommer(0, true);
+      opslagSchrijven('komkommer-telling', { dag: vandaag(), aantal: telling() + 1 });
+      toonTelling();
+    }
+    alarm(was);
+    zetFase(was === 'werk' ? 'pauze' : 'werk');
+    if (els.auto.checked) start();
+    else stop();
+  }
+
+  // Geluid: een klein belletje via Web Audio, geen bestanden nodig.
+  function zorgVoorAudio() {
+    if (!audio) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) audio = new AC();
+    }
+    if (audio && audio.state === 'suspended') audio.resume();
+  }
+
+  function toon(freq, begin, duur) {
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, begin);
+    gain.gain.exponentialRampToValueAtTime(0.35, begin + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, begin + duur);
+    osc.connect(gain).connect(audio.destination);
+    osc.start(begin);
+    osc.stop(begin + duur + 0.05);
+  }
+
+  function belletje(was) {
+    // Mag er (nog) geen geluid, dan klinkt het belletje bij de eerste tik op het scherm.
+    if (!audio) {
+      document.addEventListener('pointerdown', () => { zorgVoorAudio(); belletje(was); }, { once: true });
+      return;
+    }
+    const speel = () => {
+      const t = audio.currentTime + 0.05;
+      // Werk klaar: vrolijk omhoog. Pauze klaar: terug naar beneden, aan het werk.
+      const noten = was === 'werk' ? [660, 880, 1320] : [1320, 880, 660];
+      for (let herhaal = 0; herhaal < 3; herhaal++) {
+        noten.forEach((f, i) => toon(f, t + herhaal * 1.1 + i * 0.18, 0.6));
+      }
+    };
+    // Een telefoon kan het geluid na een tijdje stil zetten; eerst weer wekken.
+    let gespeeld = false;
+    const eenmaal = () => { if (!gespeeld) { gespeeld = true; speel(); } };
+    if (audio.state === 'running') return eenmaal();
+    audio.resume().then(eenmaal, () => {});
+    document.addEventListener('pointerdown', () => audio.resume().then(eenmaal, () => {}), { once: true });
+  }
+
+  // Scherm aan houden zolang de timer loopt: een slapende telefoon bevriest de pagina en mist het alarm.
+  let schermslot = null;
+  async function houdSchermAan() {
+    if (!('wakeLock' in navigator) || schermslot || !eindtijd || document.hidden) return;
+    try {
+      schermslot = await navigator.wakeLock.request('screen');
+      schermslot.addEventListener('release', () => { schermslot = null; });
+    } catch {}
+  }
+  function laatSchermLos() {
+    if (schermslot) schermslot.release().catch(() => {});
+    schermslot = null;
+  }
+
+  function alarm(was) {
+    if (els.sound.checked) belletje(was);
+  }
+
+  $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje('werk'); });
+  els.start.addEventListener('click', () => (eindtijd ? stop() : start()));
+  els.reset.addEventListener('click', () => { stop(); zetFase(fase); els.start.textContent = 'Start'; });
+  els.skip.addEventListener('click', () => {
+    const liep = !!eindtijd;
+    stop();
+    zetFase(fase === 'werk' ? 'pauze' : 'werk');
+    if (liep) start(); else els.start.textContent = 'Start';
+  });
+
+  ['sound', 'auto'].forEach(k => els[k].addEventListener('change', () => opslagSchrijven('komkommer-' + k, els[k].checked)));
+
+  // Spatiebalk start en pauzeert.
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && !['INPUT', 'BUTTON'].includes(document.activeElement.tagName)) {
+      e.preventDefault();
+      els.start.click();
+    }
+  });
+
+  // Als het tabblad terugkomt uit de achtergrond, meteen bijwerken.
+  document.addEventListener('visibilitychange', () => {
+    if (!eindtijd) return;
+    tik();
+    houdSchermAan();
+  });
+
+  els.sound.checked = opslagLezen('komkommer-sound', true);
+  els.auto.checked = opslagLezen('komkommer-auto', false);
+  toonTelling();
+  bouwKomkommer();
+  zetKomkommer(0);
+  herstel();
+
+  function herstel() {
+    const stand = opslagLezen('komkommer-stand', null);
+    const vers = stand && DUUR[stand.fase] && !(stand.eindtijd && Date.now() - stand.eindtijd > 3600e3);
+    if (!vers) return zetFase('werk', false);
+    if (stand.fase === 'pauze') {
+      gesneden = Math.min(KK.n, Math.max(0, stand.pauzeStart | 0));
+      zetKomkommer(gesneden);
+    }
+    zetFase(stand.fase, false);
+    resterend = Math.min(DUUR[fase], Math.max(0, Number(stand.resterend) || DUUR[fase]));
+    if (stand.eindtijd) {
+      eindtijd = stand.eindtijd;
+      loopAan();
+      tik();
+    } else {
+      els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
+      teken();
+    }
+    bewaar();
+  }
+</script>
+</body>
+</html>
