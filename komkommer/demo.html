@@ -134,7 +134,46 @@
     font-size: 14px;
     color: color-mix(in srgb, var(--ink) 60%, transparent);
   }
-  .onder .linkje { font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+  .groep { display: flex; align-items: center; gap: 4px; }
+  .icoon {
+    display: inline-flex;
+    padding: 4px;
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .icoon:hover { color: var(--ink); }
+  .icoon:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+
+  .melding {
+    position: relative;
+    margin: 0;
+    padding: 11px 48px;
+    border-bottom: 1px solid var(--line);
+    background: var(--white);
+    font-size: 14px;
+    line-height: 1.45;
+    text-align: center;
+  }
+  .melding[hidden] { display: none; }
+  .melding .sluit {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    font: inherit;
+    font-size: 22px;
+    line-height: 1;
+    background: none;
+    border: 0;
+    color: var(--ink);
+    opacity: .5;
+    cursor: pointer;
+  }
   .toggle {
     display: flex;
     gap: 7px;
@@ -153,6 +192,11 @@
 </style>
 </head>
 <body>
+  <div class="melding" id="iosmelding" role="note" hidden>
+    Op een iPhone klinkt het belletje alleen als deze pagina open en in beeld blijft (het scherm blijft vanzelf aan) en je iPhone niet op stil staat.
+    <button type="button" class="sluit" id="iosmelding-sluit" aria-label="Melding sluiten">×</button>
+  </div>
+
   <main>
     <div class="illustration" aria-hidden="true">
           <svg viewBox="0 0 480 330" xmlns="http://www.w3.org/2000/svg">
@@ -203,9 +247,17 @@
   </main>
 
   <footer class="onder">
-    <label class="toggle"><input type="checkbox" id="sound" checked><span>geluid</span></label>
-    <button type="button" class="linkje" id="testgeluid">proberen</button>
-    <label class="toggle"><input type="checkbox" id="auto"><span>vanzelf door</span></label>
+    <span class="groep">
+      <label class="toggle"><input type="checkbox" id="sound" checked><span>geluid</span></label>
+      <button type="button" class="icoon" id="testgeluid" aria-label="Geluid proberen" title="Geluid proberen">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor" stroke="none"/>
+          <path d="M15.5 9a4 4 0 0 1 0 6"/>
+          <path d="M18 6.5a7.5 7.5 0 0 1 0 11"/>
+        </svg>
+      </button>
+    </span>
+    <label class="toggle"><input type="checkbox" id="auto"><span>pauze en werk vanzelf starten</span></label>
   </footer>
 
 <script>
@@ -579,6 +631,16 @@
 
   els.sound.checked = opslagLezen('komkommer-sound', true);
   els.auto.checked = opslagLezen('komkommer-auto', false);
+  // Op een iPhone (elke browser daar is Safari onder de motorkap) legt iOS de pagina
+  // op de achtergrond stil; dat zeggen we er bovenaan eerlijk bij.
+  const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (IOS && !opslagLezen('komkommer-iosmelding-weg', false)) $('iosmelding').hidden = false;
+  $('iosmelding-sluit').addEventListener('click', () => {
+    $('iosmelding').hidden = true;
+    opslagSchrijven('komkommer-iosmelding-weg', true);
+  });
+
   bouwKomkommer();
   zetKomkommer(0);
   herstel();
