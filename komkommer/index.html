@@ -347,7 +347,7 @@
         <div>
           <p class="kicker">Alarm</p>
           <label class="toggle"><input type="checkbox" id="sound" checked><span>Geluid aan</span> <button type="button" class="linkje" id="testgeluid">probeer</button></label>
-          <label class="toggle"><input type="checkbox" id="auto" checked><span>Volgende blok automatisch starten</span></label>
+          <label class="toggle"><input type="checkbox" id="auto"><span>Volgende blok automatisch starten</span></label>
         </div>
       </section>
     </div>
@@ -611,6 +611,7 @@
     els.start.textContent = 'Pauzeer';
     clearInterval(tikker);
     tikker = setInterval(tik, 250);
+    houdSchermAan();
     teken();
   }
 
@@ -619,6 +620,7 @@
     eindtijd = null;
     clearInterval(tikker);
     document.body.classList.remove('running');
+    laatSchermLos();
     els.start.textContent = resterend < DUUR[fase] ? 'Verder' : 'Start';
     teken();
   }
@@ -669,12 +671,31 @@
 
   function belletje(was) {
     if (!audio) return;
-    const t = audio.currentTime + 0.05;
-    // Werk klaar: vrolijk omhoog. Pauze klaar: terug naar beneden, aan het werk.
-    const noten = was === 'werk' ? [660, 880, 1320] : [1320, 880, 660];
-    for (let herhaal = 0; herhaal < 3; herhaal++) {
-      noten.forEach((f, i) => toon(f, t + herhaal * 1.1 + i * 0.18, 0.6));
-    }
+    const speel = () => {
+      const t = audio.currentTime + 0.05;
+      // Werk klaar: vrolijk omhoog. Pauze klaar: terug naar beneden, aan het werk.
+      const noten = was === 'werk' ? [660, 880, 1320] : [1320, 880, 660];
+      for (let herhaal = 0; herhaal < 3; herhaal++) {
+        noten.forEach((f, i) => toon(f, t + herhaal * 1.1 + i * 0.18, 0.6));
+      }
+    };
+    // Een telefoon kan het geluid na een tijdje stil zetten; eerst weer wekken.
+    if (audio.state === 'running') speel();
+    else audio.resume().then(speel, () => {});
+  }
+
+  // Scherm aan houden zolang de timer loopt: een slapende telefoon bevriest de pagina en mist het alarm.
+  let schermslot = null;
+  async function houdSchermAan() {
+    if (!('wakeLock' in navigator) || schermslot || !eindtijd || document.hidden) return;
+    try {
+      schermslot = await navigator.wakeLock.request('screen');
+      schermslot.addEventListener('release', () => { schermslot = null; });
+    } catch {}
+  }
+  function laatSchermLos() {
+    if (schermslot) schermslot.release().catch(() => {});
+    schermslot = null;
   }
 
   function alarm(was) {
@@ -708,10 +729,14 @@
   });
 
   // Als het tabblad terugkomt uit de achtergrond, meteen bijwerken.
-  document.addEventListener('visibilitychange', () => { if (eindtijd) tik(); });
+  document.addEventListener('visibilitychange', () => {
+    if (!eindtijd) return;
+    tik();
+    houdSchermAan();
+  });
 
   els.sound.checked = opslagLezen('komkommer-sound', true);
-  els.auto.checked = opslagLezen('komkommer-auto', true);
+  els.auto.checked = opslagLezen('komkommer-auto', false);
   toonTelling();
   bouwKomkommer();
   zetKomkommer(0);
