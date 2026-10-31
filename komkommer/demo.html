@@ -434,22 +434,55 @@
     svg.vallers.replaceChildren();
   }
 
+  // Eén haal van de kaasschaaf als vloeiende kromme: links langs het snijvlak omlaag,
+  // in een boog onder de komkommer door en dan met de steel voorop omhoog.
+  // Eén versnelling en afremming over de hele baan, zodat hij nergens stokt.
+  const HAAL = (() => {
+    const P = [[0, -64], [-26, -52], [-46, -18], [-46, 26], [-30, 56], [-6, 60], [0, 36], [0, 0], [0, -36], [0, -64]];
+    const cr = (a, b, c, d, t) => [0, 1].map(k => 0.5 * (2 * b[k] + (c[k] - a[k]) * t +
+      (2 * a[k] - 5 * b[k] + 4 * c[k] - d[k]) * t * t + (3 * b[k] - a[k] - 3 * c[k] + d[k]) * t * t * t));
+    const punten = [];
+    for (let i = 0; i < P.length - 1; i++) {
+      const a = P[Math.max(0, i - 1)], d = P[Math.min(P.length - 1, i + 2)];
+      for (let k = 0; k < 24; k++) punten.push(cr(a, P[i], P[i + 1], d, k / 24));
+    }
+    punten.push(P[P.length - 1]);
+    // Afgelegde afstand per punt, zodat de snelheid langs de baan gelijkmatig is.
+    const lengte = [0];
+    for (let i = 1; i < punten.length; i++) {
+      lengte.push(lengte[i - 1] + Math.hypot(punten[i][0] - punten[i - 1][0], punten[i][1] - punten[i - 1][1]));
+    }
+    const totaal = lengte[lengte.length - 1];
+    const op = (s) => {
+      const d = s * totaal;
+      let j = 1;
+      while (j < lengte.length - 1 && lengte[j] < d) j++;
+      const f = (d - lengte[j - 1]) / ((lengte[j] - lengte[j - 1]) || 1);
+      return [0, 1].map(k => punten[j - 1][k] + f * (punten[j][k] - punten[j - 1][k]));
+    };
+    const zacht = (u) => 0.5 - 0.5 * Math.cos(Math.PI * u);
+    const frames = [];
+    for (let i = 0; i <= 72; i++) {
+      const s = zacht(i / 72);
+      const [x, y] = op(s);
+      const r = -16 + 12 * Math.sin(Math.PI * s);
+      frames.push({ transform: `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) rotate(${r.toFixed(2)}deg)` });
+    }
+    // Het moment waarop de gleuf op de terugweg omhoog het midden passeert.
+    let snij = 0.7;
+    for (let i = 1; i <= 1000; i++) {
+      const s0 = zacht((i - 1) / 1000), s1 = zacht(i / 1000);
+      if (s1 > 0.6 && op(s0)[1] > 0 && op(s1)[1] <= 0) { snij = i / 1000; break; }
+    }
+    return { frames, snij, duur: 2400 };
+  })();
+
   function schaafAf(n) {
     const oud = snijX(gesneden), nieuw = snijX(n);
     const plek = n - 1;
     gesneden = n;
     svg.schaafPos.setAttribute('transform', `translate(${nieuw} ${midden(nieuw)})`);
-    // De schaaf zakt naast het snijvlak naar beneden, schuift onder de komkommer
-    // en wordt dan met de steel voorop naar boven getrokken.
-    const rust = 'translate(0px, -64px) rotate(-16deg)';
-    lopend.push(svg.schaaf.animate([
-      { transform: rust, easing: 'ease-in-out' },
-      { transform: 'translate(-42px, -6px) rotate(-8deg)', offset: .25, easing: 'ease-in-out' },
-      { transform: 'translate(-34px, 60px) rotate(-4deg)', offset: .45, easing: 'ease-in-out' },
-      { transform: 'translate(0px, 56px) rotate(-4deg)', offset: .55, easing: 'ease-in-out' },
-      { transform: 'translate(0px, -52px) rotate(-4deg)', offset: .85, easing: 'ease-out' },
-      { transform: rust }
-    ], { duration: 2200 }));
+    lopend.push(svg.schaaf.animate(HAAL.frames, { duration: HAAL.duur }));
 
     // Halverwege de haal valt het plakje eraf en tuimelt naar het bordje.
     wachters.push(setTimeout(() => {
@@ -465,7 +498,7 @@
       ], { duration: 1100, easing: 'cubic-bezier(.3, 0, .8, .6)' });
       lopend.push(val);
       val.onfinish = () => { p.remove(); zetStapel(Math.max(stapel, plek + 1)); };
-    }, 1550));
+    }, HAAL.duur * HAAL.snij));
   }
 
   function nieuweKomkommer(animeer) {
