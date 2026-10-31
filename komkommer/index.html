@@ -731,7 +731,8 @@
     if (els.sound.checked) belletje(was);
   }
 
-  $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje('werk'); });
+  // Proberen laat het belletje horen dat aan het eind van de huidige fase klinkt.
+  $('testgeluid').addEventListener('click', () => { zorgVoorAudio(); belletje(fase); });
   els.start.addEventListener('click', () => (eindtijd ? stop() : start()));
   els.reset.addEventListener('click', () => { stop(); zetFase(fase); knop('Start'); });
   document.querySelectorAll('.wissel button').forEach(b => b.addEventListener('click', () => {
