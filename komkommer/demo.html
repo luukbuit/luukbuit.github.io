@@ -481,7 +481,8 @@
       const rest = 1 - v * v * (3 - 2 * v);
       return { transform: `translate(${(x + dx * rest).toFixed(2)}px, ${(y + dy * rest).toFixed(2)}px) rotate(${r.toFixed(2)}deg)` };
     });
-    return { frames, snij, duur: 2400 };
+    // Normaal 2,4 s; bij een versnelde test korter, zodat een haal nooit over de volgende heen valt.
+    return { frames, snij, duur: Math.min(2400, MINUUT * 1000 * 0.85) };
   })();
 
   function schaafAf(n) {
