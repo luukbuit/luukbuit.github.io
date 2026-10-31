@@ -1,0 +1,11 @@
+klokcijfers.woff2 ("Komkommer Klok")
+
+Afgeleid van TeX Gyre Schola Regular (texgyreschola-regular.otf, CTAN:
+fonts/tex-gyre), een vrije Century Schoolbook-kloon van de GUST e-foundry.
+
+Wijzigingen: teruggebracht tot de cijfers 0-9 en de dubbele punt, zonder
+OpenType-features, omgezet naar WOFF2 en hernoemd naar "Komkommer Klok",
+zoals de licentie vraagt voor afgeleide versies.
+
+Licentie: GUST Font License (LPPL 1.3c of later), zie GUST-FONT-LICENSE.txt.
+Origineel: https://www.gust.org.pl/projects/e-foundry/tex-gyre
